@@ -117,6 +117,11 @@ app.get("/get/data", (req, res) => {});
 app.get("/get/conversation", (req, res) => {});
 
 // AUTHENTICATION
+
+// ADD PASSWORD CHECK FROM HAVEIBEENPWNED type of API
+// to only allow passwords that have not been compromised
+// restrict usernames to letters, numbers, -, _ only
+
 // Authenticate on route /login
 app.post(
   "/login",
