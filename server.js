@@ -158,7 +158,7 @@ app.post(
       console.log(`user exists: ${user.username}`);
       res
         .status(200)
-        .json({ message: `This username (${uname}) already exists.` });
+        .json({ message: `The username (${uname}) already exists.` });
     } else {
       // Implement saving a hash
       const hash = await bcrypt.hash(req.body.password, 12);
