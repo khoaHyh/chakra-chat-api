@@ -1,3 +1,4 @@
+"use strict";
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -14,18 +15,14 @@ const cookieParser = require("cookie-parser");
 const auth = require("./auth");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
-const ensureAuthenticated = require("./utilities/ensureAuthenticated");
+const nodemailer = require("nodemailer");
 
-const pusher = new Pusher({
-  appId: "1170571",
-  key: `${process.env.PUSHER_KEY}`,
-  secret: `${process.env.PUSHER_SECRET}`,
-  cluster: "us2",
-  useTLS: true,
-});
-
-const users = [{ username: "john doe", password: "abc123" }];
-
+// Middleware to check if a user is authenticated
+// Prevents users going to /profile whether they authenticated or not
+const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) next();
+  res.status(200).json({ message: "User is not authenticated." });
+};
 // Implement a Root-Level Request Logger Middleware
 app.use((req, res, next) => {
   // console.log(req.method + " " + req.path + " - " + req.ip);
@@ -43,19 +40,16 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Set up our express app to use session
-//app.use(
-//  session({
-//    secret: process.env.SESSION_SECRET,
-//    resave: true,
-//    saveUninitialized: true,
-//    cookie: { secure: false },
-//    key: "express.sid",
-//    store: store,
-//  })
-//);
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    cookie: { secure: false },
+  })
+);
 
 connectDB();
-
 auth(passport);
 
 // Listen for error events on the database connection
@@ -90,6 +84,17 @@ mongoose.connection.once("open", () => {
 app.get("/", (req, res) => {
   // get list of all users
   res.status(200).json("woot");
+});
+
+// Renders chat.pug with user object
+app.get("/chat", ensureAuthenticated, (req, res) => {
+  res.status(200).json({ message: "enter chat" });
+});
+
+// Unauthenticate user
+app.get("/logout", (req, res) => {
+  req.logout();
+  res.status(200).json({ message: "logout" });
 });
 
 app.post("/new/channel", (req, res) => {
@@ -127,62 +132,80 @@ app.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/" }),
   (req, res) => {
-    //    res.redirect("/chat");
-    //    res.status(200).json(req.user.username);
-    res.status(200).json(req.user);
+    res.status(200).json(req.user.username);
   }
 );
-// If authentication middleware passes, redirect user to /profile
-// If authentication was successful, the user object will be saved in req.user
-app.get("/profile", ensureAuthenticated, (req, res) => {
-  res.render("pug/profile", { username: req.user.username });
-});
-// Renders chat.pug with user object
-app.get("/chat", ensureAuthenticated, (req, res) => {
-  res.render("pug/chat", { user: req.user });
-});
-// Unauthenticate user
-app.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect("/");
-});
+//app.post("/login", (req, res, next) => {
+//  passport.authenticate("local", (err, user, info) => {
+//    if (err) return next(err);
+//    !user
+//      ? res.status(200).json({ message: "No user exists" })
+//      : res.status(200).json(req.user.username);
+//  });
+//});
 // Allow a new user on our site to register an account
-app.post(
-  "/register",
-  async (req, res, next) => {
-    let uname = req.body.username;
+app.post("/register", async (req, res, next) => {
+  let uname = req.body.username;
+  let email = req.body.email;
 
-    // Check if the user is already in the database and act accordingly
-    let user = await User.findOne({ username: uname });
-    if (user) {
-      console.log(`user exists: ${user.username}`);
-      res
-        .status(200)
-        .json({ message: `The username (${uname}) already exists.` });
-    } else {
-      // Implement saving a hash
-      const hash = await bcrypt.hash(req.body.password, 12);
+  // Check if the user is already in the database and act accordingly
+  let user = await User.findOne({ username: uname });
+  if (user) {
+    console.log(`user exists: ${user.username}`);
+    res
+      .status(200)
+      .json({ message: `The username (${uname}) already exists.` });
+  } else {
+    // Implement saving a hash
+    const hash = await bcrypt.hash(req.body.password, 12);
 
-      user = new User({ username: uname, password: hash });
+    user = new User({ email: email, username: uname, password: hash });
 
-      user.save((err, doc) => {
-        if (err) {
-          console.error(`save error: ${err}`);
-          res.redirect("/");
-        }
-        console.log(`Document inserted successfully, ${user.username}`);
-        res.status(201).json(user);
-        //        res.status(201).json({ username: user.username, _id: user._id });
-        //        next(null, doc.ops[0]);
+    const main = async () => {
+      // Generate test SMTP service account from ethereal.email
+      // Only needed if you don't have a real mail account for testing
+      let testAccount = await nodemailer.createTestAccount();
+
+      // create reusable transporter object using the default SMTP transport
+      let transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: testAccount.user, // generated ethereal user
+          pass: testAccount.pass, // generated ethereal password
+        },
       });
-    }
+
+      // send mail with defined transport object
+      let info = await transporter.sendMail({
+        from: '"discord-clone-khoahyh 👻" <khoahuynhapps@gmail.com>', // sender address
+        to: email, // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "Hello world?", // plain text body
+        html: "<b>Hello world?</b>", // html body
+      });
+
+      console.log("Message sent: %s", info.messageId);
+      // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+      // Preview only available when sending through an Ethereal account
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+    };
+
+    main().catch(console.error);
+
+    user.save((err, doc) => {
+      if (err) {
+        console.error(`save error: ${err}`);
+        res.redirect("/");
+      }
+      console.log(`Document inserted successfully, ${user.username}`);
+      res.status(201).json(user);
+    });
   }
-  // JUST ROUTE TO CHAT IN FRONT END
-  //  passport.authenticate("local", { failureRedirect: "/" }),
-  //  (req, res, next) => {
-  //    res.redirect("/chat");
-  //  }
-);
+});
 // Social authentication using Github strategy
 app.get("/auth/github", passport.authenticate("github"));
 app.get(
@@ -190,7 +213,7 @@ app.get(
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
     req.session.user_id = req.user.id;
-    res.redirect("/chat");
+    res.status(200).json(req.session.user_id);
   }
 );
 // Handle missing pages (404)
