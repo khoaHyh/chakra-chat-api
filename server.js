@@ -57,76 +57,18 @@ mongoose.connection.on("error", (err) => {
   // Will not log if database disconnects, need to listen for disconnection for that
   logError(err);
 });
-
-// Execute a callback when the connection to mongodb is open
-// because mongodb is not a real-time db we need to implement Pusher
-// Firebase is an example of a real-time db
-mongoose.connection.once("open", () => {
-  console.log("Database Connected");
-
-  // watches everything that happens with the database
-  const changeStream = mongoose.connection.collection("conversations").watch();
-  changeStream.on("change", (change) => {
-    if (change.operationType === "insert") {
-      pusher.trigger("channels", "newChannels", {
-        change: change,
-      });
-    } else if (change.operationType === "update") {
-      pusher.trigger("conversation", "newMessage", {
-        change: change,
-      });
-    } else {
-      console.log("changeStream error");
-    }
-  });
-});
-
 app.get("/", (req, res) => {
   // get list of all users
   res.status(200).json("woot");
 });
-
-// Renders chat.pug with user object
 app.get("/chat", ensureAuthenticated, (req, res) => {
   res.status(200).json({ message: "enter chat" });
 });
-
 // Unauthenticate user
 app.get("/logout", (req, res) => {
   req.logout();
   res.status(200).json({ message: "logout" });
 });
-
-app.post("/new/channel", (req, res) => {
-  const body = req.body;
-
-  // create new document with data
-  Conversations.create(body, (err, data) => {
-    err ? res.status(500).send(err) : res.status(201).send(data);
-  });
-});
-
-app.get("/get/channelList", (req, res) => {
-  Conversation.find((err, data) => {
-    err ? res.status(500).send(err) : res.status(200).send(data);
-  });
-});
-
-app.post("/new/message", (req, res) => {
-  const id = req.query.id;
-  const newMsg = req.body;
-});
-
-app.get("/get/data", (req, res) => {});
-
-app.get("/get/conversation", (req, res) => {});
-
-// AUTHENTICATION
-
-// ADD PASSWORD CHECK FROM HAVEIBEENPWNED type of API
-// to only allow passwords that have not been compromised
-// restrict usernames to letters, numbers, -, _ only
-
 // Authenticate on route /login
 app.post(
   "/login",
@@ -135,15 +77,6 @@ app.post(
     res.status(200).json(req.user.username);
   }
 );
-//app.post("/login", (req, res, next) => {
-//  passport.authenticate("local", (err, user, info) => {
-//    if (err) return next(err);
-//    !user
-//      ? res.status(200).json({ message: "No user exists" })
-//      : res.status(200).json(req.user.username);
-//  });
-//});
-// Allow a new user on our site to register an account
 app.post("/register", async (req, res, next) => {
   let uname = req.body.username;
   let email = req.body.email;
@@ -216,11 +149,6 @@ app.get(
     res.status(200).json(req.session.user_id);
   }
 );
-// Handle missing pages (404)
-app.use((req, res, next) => {
-  res.status(404).type("text").send("Not Found");
-});
-
 // changed from 3000
 const PORT = process.env.PORT || 3080;
 app.listen(PORT, () => {
