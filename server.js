@@ -5,15 +5,13 @@ const mongoose = require("mongoose");
 const app = express();
 const cors = require("cors");
 const connectDB = require("./utilities/db");
-const User = require("./models/user");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const auth = require("./auth");
 const passport = require("passport");
-const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
 const handleRegister = require("./controllers/register");
+const MongoStore = require("connect-mongo")(session);
 
 // Middleware to check if a user is authenticated
 const ensureAuthenticated = (req, res, next) => {
