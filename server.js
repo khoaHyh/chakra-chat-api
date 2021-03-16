@@ -17,12 +17,10 @@ const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 /** START OF MIDDLEWARE **/
 // Middleware to check if a user is authenticated
 const ensureAuthenticated = (req, res, next) => {
-  let authenticated = false;
   if (req.isAuthenticated()) {
-    authenticated = true;
     next();
   }
-  res.status(200).json({ message: authenticated });
+  res.redirect("/");
 };
 // Implement a Root-Level Request Logger Middleware
 app.use((req, res, next) => {
@@ -60,7 +58,7 @@ app.get("/", (req, res) => {
   res.status(200).json("woot");
 });
 app.get("/chat", ensureAuthenticated, (req, res) => {
-  res.status(200).json({ message: "enter chat" });
+  res.status(200).json({ message: "in chat" });
 });
 app.get("/logout", (req, res) => {
   req.logout();
@@ -70,6 +68,7 @@ app.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/" }),
   (req, res) => {
+    req.session.user = req.user._id;
     res.status(200).json(req.user.username);
   }
 );
