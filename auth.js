@@ -1,5 +1,4 @@
 require("dotenv").config();
-//const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 const GitHubStrategy = require("passport-github").Strategy;
@@ -13,7 +12,7 @@ module.exports = (passport) => {
   // Convert key into original object and retrieve object contents
   passport.deserializeUser((id, done) => {
     User.findById(id, (err, doc) => {
-      if (err) return console.error(`myDataBase.findOne error: ${err}`);
+      if (err) return done(err);
       done(null, doc);
     });
   });
@@ -23,20 +22,19 @@ module.exports = (passport) => {
       let user = await User.findOne({ username: username });
       console.log("User " + username + " attempted to log in.");
       if (!user) {
-        return done(null, false, { message: "User not found." });
+        return done(null, false, { message: "Incorrect username." });
       }
       try {
         if (await bcrypt.compare(password, user.password)) {
           return done(null, user);
         } else {
-          return done(null, false, { message: "Incorrect password" });
+          return done(null, false, { message: "Incorrect password." });
         }
       } catch (err) {
         done(err);
       }
     })
   );
-
   // Github authentication strategy
   passport.use(
     new GitHubStrategy(
