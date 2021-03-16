@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-const mongoose = require("mongoose");
-const User = require("./models/user");
+const User = require("../models/user");
 
 module.exports = async (req, res, next) => {
   let uname = req.body.username;
