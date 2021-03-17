@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 //app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use(cors({ credentials: true }));
+app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
