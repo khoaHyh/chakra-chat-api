@@ -15,26 +15,6 @@ const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 
 /** START OF MIDDLEWARE **/
-// Middleware to check if a user is authenticated
-const ensureAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  }
-  res.redirect("/");
-};
-app.use((req, res, next) => {
-  //res.header("Access-Control-Allow-Origin", "http://localhost:3080");
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://discord-clone-khoahyh.netlify.app/"
-  );
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
 // Implement a Root-Level Request Logger Middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
