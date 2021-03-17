@@ -32,8 +32,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -44,6 +42,8 @@ app.use(
     store: sessionStore,
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 /** END OF MIDDLEWARE **/
 
 connectDB();
@@ -57,8 +57,14 @@ mongoose.connection.on("error", (err) => {
 app.get("/", (req, res) => {
   res.status(200).json("woot");
 });
-app.get("/chat", ensureAuthenticated, (req, res) => {
-  res.status(200).json({ message: "in chat" });
+app.get("/chat", (req, res) => {
+  console.log("isAuth: " + req.isAuthenticated());
+  console.log("sessionUser: " + req.session.user);
+  if (req.isAuthenticated()) {
+    res.status(200).json({ message: "You are signed in." });
+  } else {
+    res.status(200).json({ message: "Unauthenticated." });
+  }
 });
 app.get("/logout", (req, res) => {
   req.logout();
@@ -68,6 +74,7 @@ app.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/" }),
   (req, res) => {
+    console.log("loginAuth: " + req.isAuthenticated());
     req.session.user = req.user._id;
     res.status(200).json(req.user.username);
   }
