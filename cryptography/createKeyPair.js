@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 
 // Generates a private and public key using Elliptic Curve Cryptography
-function genKeyPair() {
+const genKeyPair = () => {
   // Generates an object where the keys are stored in properties
   const keyPair = crypto.generateKeyPairSync("rsa", {
     // bits - standard for RSA keys
@@ -20,4 +20,7 @@ function genKeyPair() {
   fs.writeFileSync(__dirname + "/id_rsa_pub.pem", keyPair.publicKey);
   // Create the private key file
   fs.writeFileSync(__dirname + "/id_rsa_priv.pem", keyPair.privateKey);
-}
+};
+
+// Generate the key pair
+genKeyPair();
