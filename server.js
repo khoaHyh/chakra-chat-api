@@ -22,12 +22,21 @@ const ensureAuthenticated = (req, res, next) => {
   }
   res.redirect("/");
 };
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3080");
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 // Implement a Root-Level Request Logger Middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
@@ -59,7 +68,6 @@ app.get("/", (req, res) => {
 });
 app.get("/chat", (req, res) => {
   console.log("isAuth: " + req.isAuthenticated());
-  console.log("sessionUser: " + req.session.user);
   if (req.isAuthenticated()) {
     res.status(200).json({ message: "You are signed in." });
   } else {
@@ -75,7 +83,6 @@ app.post(
   passport.authenticate("local", { failureRedirect: "/" }),
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
-    req.session.user = req.user._id;
     res.status(200).json(req.user.username);
   }
 );
