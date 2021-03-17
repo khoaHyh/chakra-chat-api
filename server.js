@@ -23,7 +23,11 @@ const ensureAuthenticated = (req, res, next) => {
   res.redirect("/");
 };
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3080");
+  //res.header("Access-Control-Allow-Origin", "http://localhost:3080");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://discord-clone-khoahyh.netlify.app/"
+  );
   res.header("Access-Control-Allow-Credentials", true);
   res.header(
     "Access-Control-Allow-Headers",
@@ -36,7 +40,13 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(
+  cors({
+    credentials: true,
+    origin: "https://discord-clone-khoahyh.netlify.app/",
+  })
+);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
