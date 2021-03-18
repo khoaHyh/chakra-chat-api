@@ -31,6 +31,7 @@ module.exports = (passport) => {
           return done(null, false, { message: "Incorrect password." });
         }
       } catch (err) {
+        console.log(err);
         done(err);
       }
     })

@@ -20,8 +20,8 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+//app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
@@ -32,7 +32,7 @@ app.use(
     resave: true,
     saveUninitialized: true,
     // Equals 1 day (1 day * 1000 ms/1 sec * 60 sec/1 min * 60 min/1 hr * 24 hr/1 day)
-    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     store: sessionStore,
   })
 );
@@ -49,14 +49,14 @@ mongoose.connection.on("error", (err) => {
   logError(err);
 });
 app.get("/", (req, res) => {
-  res.status(200).json("woot");
+  res.status(200).json("woot I'm home");
 });
 app.get("/chat", (req, res) => {
   console.log("isAuth: " + req.isAuthenticated());
   if (req.isAuthenticated()) {
-    res.status(200).json({ message: "You are signed in." });
+    res.status(200).json({ message: "isAuthenticated" });
   } else {
-    res.status(200).json({ message: "Unauthenticated." });
+    res.status(200).json({ message: "isNotAuthenticated." });
   }
 });
 app.get("/logout", (req, res) => {
