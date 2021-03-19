@@ -52,9 +52,14 @@ app.get("/", (req, res) => {
   res.status(200).json("woot I'm home");
 });
 app.get("/chat", (req, res) => {
+  const token = req.cookies.session || "";
   console.log("isAuth: " + req.isAuthenticated());
   if (req.isAuthenticated()) {
-    res.status(200).json({ message: "isAuthenticated." });
+    res.status(200).json({
+      message: "isAuthenticated.",
+      token: token,
+      session: req.session,
+    });
   } else {
     res.status(200).json({ message: "isNotAuthenticated." });
   }
