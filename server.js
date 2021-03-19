@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
 app.get("/chat", (req, res) => {
   console.log("isAuth: " + req.isAuthenticated());
   if (req.isAuthenticated()) {
-    res.status(200).json({ message: "isAuthenticated" });
+    res.status(200).json({ message: "isAuthenticated." });
   } else {
     res.status(200).json({ message: "isNotAuthenticated." });
   }
