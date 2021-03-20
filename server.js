@@ -20,8 +20,8 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+//app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
@@ -49,15 +49,18 @@ mongoose.connection.on("error", (err) => {
   logError(err);
 });
 app.get("/", (req, res) => {
-  res.status(200).json("woot I'm home");
+  console.log(req.user);
+  if (req.user) {
+    res.json({ id: req.user._id, session: req.session });
+  } else {
+    res.json({ user: null });
+  }
 });
 app.get("/chat", (req, res) => {
-  const token = req.cookies.session || "";
   console.log("isAuth: " + req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.status(200).json({
       message: "isAuthenticated.",
-      token: token,
       session: req.session,
     });
   } else {
@@ -73,7 +76,11 @@ app.post(
   passport.authenticate("local", { failureRedirect: "/" }),
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
-    res.status(200).json(req.user.username);
+    if (req.isAuthenticated()) {
+      res.status(200).json({ username: req.user.username });
+    } else {
+      res.status(200).json("Invalid username or password");
+    }
   }
 );
 app.post("/register", (req, res, next) => {
