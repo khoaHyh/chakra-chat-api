@@ -1,7 +1,7 @@
 require("dotenv").config();
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
-const GitHubStrategy = require("passport-github2").Strategy;
+const GitHubStrategy = require("passport-github").Strategy;
 const User = require("./models/user");
 
 module.exports = (passport) => {
@@ -45,7 +45,7 @@ module.exports = (passport) => {
         callbackURL:
           "https://discord-clone-khoahyh.netlify.app/auth/github/callback",
       },
-      (accessToken, refreshToken, profile, cb) => {
+      (accessToken, refreshToken, profile, done) => {
         console.log(profile);
         // Database logic here with callback containing our user object
         Users.findOne({ _id: profile.id }, (err, user) => {
@@ -56,6 +56,7 @@ module.exports = (passport) => {
             user = new User({
               username: profile.username,
               provider: "github",
+              active: true,
             });
 
             user.save((err, doc) => {

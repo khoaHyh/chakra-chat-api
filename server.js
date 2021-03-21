@@ -89,9 +89,9 @@ app.post("/register", (req, res, next) => {
 app.get("/auth/github", passport.authenticate("github"));
 app.get(
   "/auth/github/callback",
-  passport.authenticate("github", { failureRedirect: "/" }),
+  passport.authenticate("github", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.user._id = req.user._id;
+    req.session.user_id = req.user._id;
     res.status(200).json(req.session.user_id);
   }
 );
