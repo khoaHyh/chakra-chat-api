@@ -77,7 +77,7 @@ app.post(
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
     if (req.isAuthenticated()) {
-      res.status(200).json({ username: req.user.username });
+      res.status(200).json({ id: req.user._id });
     } else {
       res.status(200).json("Invalid username or password");
     }
@@ -91,7 +91,7 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
-    req.session.user_id = req.user.id;
+    req.session.user._id = req.user._id;
     res.status(200).json(req.session.user_id);
   }
 );
