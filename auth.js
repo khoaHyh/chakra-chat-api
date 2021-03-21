@@ -43,7 +43,7 @@ module.exports = (passport) => {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL:
-          "https://discord-clone-khoahyh.netlify.app/auth/github/callback",
+          "https://discord-clone-khoahyh.herokuapp.com/auth/github/callback",
       },
       (accessToken, refreshToken, profile, done) => {
         console.log(profile);

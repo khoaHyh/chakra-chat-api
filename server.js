@@ -20,8 +20,13 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-//app.use(cors({ credentials: true, origin: true }));
+//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(
+  cors({
+    credentials: true,
+    origin: "https://discord-clone-khoahyh.netlify.app/",
+  })
+);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
@@ -32,6 +37,7 @@ app.use(
     resave: true,
     saveUninitialized: true,
     // Equals 1 day (1 day * 1000 ms/1 sec * 60 sec/1 min * 60 min/1 hr * 24 hr/1 day)
+    // set httponly: false for https
     cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     store: sessionStore,
   })
@@ -51,7 +57,7 @@ mongoose.connection.on("error", (err) => {
 app.get("/", (req, res) => {
   console.log(req.user);
   if (req.user) {
-    res.json({ username: req.user.username });
+    res.json({ username: req.user.username, active: req.user.active });
   } else {
     res.json({ user: null });
   }
@@ -77,7 +83,9 @@ app.post(
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
     if (req.isAuthenticated()) {
-      res.status(200).json({ username: req.user.username });
+      res
+        .status(200)
+        .json({ username: req.user.username, active: req.user.active });
     } else {
       res.status(200).json("Invalid username or password");
     }
@@ -91,8 +99,13 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.user_id = req.user._id;
-    res.status(200).json(req.session.user_id);
+    console.log("github session:", req.session);
+    console.log("user info:", req.user);
+    //res
+    //  .status(200)
+    //  .json({ username: req.user.username, active: req.user.active });
+    res.redirect("localhost:3000/chat");
+    //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
 );
 const PORT = process.env.PORT || 3080;
