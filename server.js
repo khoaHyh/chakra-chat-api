@@ -61,6 +61,7 @@ mongoose.connection.on("error", (err) => {
 });
 app.get("/", (req, res) => {
   console.log(req.user);
+  console.log(req.session);
   if (req.user) {
     res.json({ username: req.user.username, active: req.user.active });
   } else {
