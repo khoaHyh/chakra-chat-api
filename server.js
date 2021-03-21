@@ -79,7 +79,9 @@ app.get("/logout", (req, res) => {
 });
 app.post(
   "/login",
-  passport.authenticate("local", { failureRedirect: "/" }),
+  passport.authenticate("local", {
+    failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+  }),
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
     if (req.isAuthenticated()) {
@@ -97,15 +99,17 @@ app.post("/register", (req, res, next) => {
 app.get("/auth/github", passport.authenticate("github"));
 app.get(
   "/auth/github/callback",
-  passport.authenticate("github", { failureRedirect: "/login" }),
+  passport.authenticate("github", {
+    failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+  }),
   (req, res) => {
     console.log("github session:", req.session);
     console.log("user info:", req.user);
     //res
     //  .status(200)
     //  .json({ username: req.user.username, active: req.user.active });
-    res.redirect("localhost:3000/chat");
-    //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
+    //res.redirect("localhost:3000/chat");
+    res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
 );
 const PORT = process.env.PORT || 3080;
