@@ -51,7 +51,7 @@ mongoose.connection.on("error", (err) => {
 app.get("/", (req, res) => {
   console.log(req.user);
   if (req.user) {
-    res.json({ id: req.user._id, session: req.session });
+    res.json({ username: req.user.username });
   } else {
     res.json({ user: null });
   }
@@ -77,7 +77,7 @@ app.post(
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
     if (req.isAuthenticated()) {
-      res.status(200).json({ id: req.user._id });
+      res.status(200).json({ username: req.user.username });
     } else {
       res.status(200).json("Invalid username or password");
     }
