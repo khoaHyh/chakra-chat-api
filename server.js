@@ -14,6 +14,8 @@ const auth = require("./auth");
 const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 
+connectDB();
+
 /** START OF MIDDLEWARE **/
 // Implement a Root-Level Request Logger Middleware
 app.use((req, res, next) => {
@@ -23,8 +25,8 @@ app.use((req, res, next) => {
 //app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(
   cors({
+    origin: "https://discord-clone-khoahyh.netlify.app",
     credentials: true,
-    origin: "https://discord-clone-khoahyh.netlify.app/",
   })
 );
 app.use(bodyParser.json());
@@ -51,7 +53,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 /** END OF MIDDLEWARE **/
 
-connectDB();
 auth(passport);
 
 // Listen for error events on the database connection
