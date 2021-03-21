@@ -1,7 +1,7 @@
 require("dotenv").config();
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
-const GitHubStrategy = require("passport-github").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
 const User = require("./models/user");
 
 module.exports = (passport) => {
