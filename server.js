@@ -101,6 +101,7 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
     failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    session: true,
   }),
   (req, res) => {
     console.log("github session:", req.session);
