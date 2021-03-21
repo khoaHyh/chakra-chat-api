@@ -48,7 +48,7 @@ module.exports = (passport) => {
       (accessToken, refreshToken, profile, done) => {
         console.log(profile);
         // Database logic here with callback containing our user object
-        Users.findOne({ _id: profile.id }, (err, user) => {
+        User.findOne({ _id: profile.id }, (err, user) => {
           if (user) {
             console.log(`user exists: ${user.username}`);
             return done(err, user);
