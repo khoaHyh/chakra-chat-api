@@ -48,12 +48,15 @@ module.exports = (passport) => {
       (accessToken, refreshToken, profile, done) => {
         console.log(profile);
         // Database logic here with callback containing our user object
-        User.findOne({ _id: profile.id }, (err, user) => {
+        User.findOne({ githubId: profile.id }, (err, user) => {
+          if (err) return done(err, null);
+
           if (user) {
             console.log(`user exists: ${user.username}`);
             return done(err, user);
           } else {
             user = new User({
+              githubId: profile.id,
               username: profile.username,
               provider: "github",
               active: true,
