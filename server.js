@@ -14,6 +14,7 @@ const auth = require("./auth");
 const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const User = require("./models/user");
+const sendEmail = require("./utilities/sendEmail");
 
 connectDB();
 
@@ -111,17 +112,30 @@ app.post(
 app.post("/register", (req, res, next) => {
   handleRegister(req, res, next);
 });
+app.post("resend", async (req, res) => {
+  let email = req.body.email;
+
+  const user = await User.findOne({ email: email });
+  if (user) {
+    sendEmail(email, user.emailHash);
+    res.status(200).json({ message: "Resent the verification email!" });
+  } else {
+    res.status(404).json({
+      message: "No user found with that email. Please register again.",
+    });
+  }
+});
 app.get("/confirmation/:hash", async (req, res) => {
   const { hash } = req.params;
   try {
     console.log("lookup user and update");
-    const user = await User.findOneAndUpdate(
+    User.findOneAndUpdate(
       { emailHash: hash },
       { active: true },
       { returnOriginal: false },
       (err, data) => {
         if (err) console.log("confirmation error:", error);
-        console.log(doc);
+        console.log(data);
       }
     );
   } catch (error) {
