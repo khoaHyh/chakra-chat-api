@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   githubId: String,
   email: { type: String, index: { unique: true } },
+  emailHash: { type: String, required: true },
   username: { type: String, required: true, index: { unique: true } },
   password: { type: String },
   joined: { type: Date, default: new Date() },

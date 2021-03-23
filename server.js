@@ -13,6 +13,7 @@ const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
+const User = require("./models/user");
 
 connectDB();
 
@@ -22,13 +23,13 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use(
-  cors({
-    origin: "https://discord-clone-khoahyh.netlify.app",
-    credentials: true,
-  })
-);
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+//app.use(
+//  cors({
+//    origin: "https://discord-clone-khoahyh.netlify.app",
+//    credentials: true,
+//  })
+//);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
@@ -87,7 +88,8 @@ app.get("/logout", (req, res) => {
 app.post(
   "/login",
   passport.authenticate("local", {
-    failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    //failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    failureRedirect: "/login",
   }),
   (req, res) => {
     console.log("loginAuth: " + req.isAuthenticated());
@@ -95,6 +97,12 @@ app.post(
       res
         .status(200)
         .json({ username: req.user.username, active: req.user.active });
+    } else if (req.user) {
+      res
+        .status(200)
+        .json(
+          "Your Email has not been verified. Please check your inbox or resend the email."
+        );
     } else {
       res.status(200).json("Invalid username or password");
     }
@@ -103,11 +111,30 @@ app.post(
 app.post("/register", (req, res, next) => {
   handleRegister(req, res, next);
 });
+app.get("/confirmation/:hash", async (req, res) => {
+  const { hash } = req.params;
+  try {
+    console.log("lookup user and update");
+    const user = await User.findOneAndUpdate(
+      { emailHash: hash },
+      { active: true },
+      { returnOriginal: false },
+      (err, data) => {
+        if (err) console.log("confirmation error:", error);
+        console.log(doc);
+      }
+    );
+  } catch (error) {
+    console.log("send an error");
+  }
+  //TODO redirect to login
+});
 app.get("/auth/github", passport.authenticate("github"));
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    //failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    failureRedirect: "/login",
     session: true,
   }),
   (req, res) => {
@@ -116,8 +143,8 @@ app.get(
     //res
     //  .status(200)
     //  .json({ username: req.user.username, active: req.user.active });
-    //res.redirect("localhost:3000/chat");
-    res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
+    res.redirect("http://localhost:3000/chat");
+    //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
 );
 const PORT = process.env.PORT || 3080;

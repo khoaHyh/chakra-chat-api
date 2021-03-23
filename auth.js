@@ -26,7 +26,15 @@ module.exports = (passport) => {
       }
       try {
         if (await bcrypt.compare(password, user.password)) {
-          return done(null, user);
+          // Check if user has verified their email
+          if (user.active) {
+            return done(null, user);
+          } else {
+            return done(null, false, {
+              message:
+                "Your Email has not been verified. Please check your inbox or resend the email.",
+            });
+          }
         } else {
           return done(null, false, { message: "Incorrect password." });
         }
