@@ -22,7 +22,9 @@ module.exports = (passport) => {
       let user = await User.findOne({ username: username });
       console.log("User " + username + " attempted to log in.");
       if (!user) {
-        return done(null, false, { message: "Incorrect username." });
+        return done(null, false, {
+          message: "Invalid username or password.",
+        });
       }
       try {
         if (await bcrypt.compare(password, user.password)) {
@@ -36,7 +38,9 @@ module.exports = (passport) => {
             });
           }
         } else {
-          return done(null, false, { message: "Incorrect password." });
+          return done(null, false, {
+            message: "Invalid username or password.",
+          });
         }
       } catch (err) {
         console.log(err);

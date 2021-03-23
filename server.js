@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
+const flash = require("connect-flash");
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const handleRegister = require("./controllers/register");
@@ -31,6 +32,7 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 //    credentials: true,
 //  })
 //);
+app.use(flash());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
@@ -63,8 +65,8 @@ mongoose.connection.on("error", (err) => {
   logError(err);
 });
 app.get("/", (req, res) => {
-  console.log(req.user);
-  console.log(req.session);
+  console.log("req.user:", req.user);
+  console.log("req.session:", req.session);
   if (req.user) {
     res.json({ username: req.user.username, active: req.user.active });
   } else {
@@ -86,28 +88,21 @@ app.get("/logout", (req, res) => {
   req.logout();
   res.status(200).json({ message: "logout" });
 });
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    //failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
-    failureRedirect: "/login",
-  }),
-  (req, res) => {
-    console.log("loginAuth: " + req.isAuthenticated());
-    if (req.isAuthenticated()) {
-      res
+app.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+    if (!user) {
+      console.log("info.message:", info);
+      return res.status(403).json({ success: false, message: info.message });
+    }
+    req.logIn(user, (err) => {
+      if (err) return next(err);
+      return res
         .status(200)
         .json({ username: req.user.username, active: req.user.active });
-    } else if (!req.user) {
-      res.status(200).json({
-        message:
-          "Your Email has not been verified. Please check your inbox or resend the email.",
-      });
-    } else {
-      res.status(200).json({ message: "Invalid username or password" });
-    }
-  }
-);
+    });
+  })(req, res, next);
+});
 app.post("/register", (req, res, next) => {
   handleRegister(req, res, next);
 });
