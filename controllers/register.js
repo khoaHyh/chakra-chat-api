@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const User = require("../models/user");
-const sendEmail = require("../sendEmail");
+const sendEmail = require("../utilities/sendEmail");
 
 module.exports = async (req, res, next) => {
   let uname = req.body.username;

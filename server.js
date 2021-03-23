@@ -98,21 +98,20 @@ app.post(
       res
         .status(200)
         .json({ username: req.user.username, active: req.user.active });
-    } else if (req.user) {
-      res
-        .status(200)
-        .json(
-          "Your Email has not been verified. Please check your inbox or resend the email."
-        );
+    } else if (!req.user) {
+      res.status(200).json({
+        message:
+          "Your Email has not been verified. Please check your inbox or resend the email.",
+      });
     } else {
-      res.status(200).json("Invalid username or password");
+      res.status(200).json({ message: "Invalid username or password" });
     }
   }
 );
 app.post("/register", (req, res, next) => {
   handleRegister(req, res, next);
 });
-app.post("resend", async (req, res) => {
+app.post("/resend", async (req, res) => {
   let email = req.body.email;
 
   const user = await User.findOne({ email: email });
@@ -135,7 +134,7 @@ app.get("/confirmation/:hash", async (req, res) => {
       { returnOriginal: false },
       (err, data) => {
         if (err) console.log("confirmation error:", error);
-        console.log(data);
+        console.log("user confirmed!", data);
       }
     );
   } catch (error) {
