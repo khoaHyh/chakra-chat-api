@@ -10,12 +10,15 @@ const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const flash = require("connect-flash");
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const User = require("./models/user");
 const sendEmail = require("./utilities/sendEmail");
+const onAuthorize = require("./utilities/onAuthorize");
 
 connectDB();
 
@@ -50,12 +53,26 @@ app.use(
       secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
+    key: "express.sid",
     store: sessionStore,
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
 /** END OF MIDDLEWARE **/
+
+// Parse and decode the cookie that contains the passport session
+// then deserialize to obtain user object
+io.use(
+  passportSocketIo.authorize({
+    cookieParser: cookieParser,
+    key: "express.sid",
+    secret: process.env.SESSION_SECRET,
+    store: store,
+    success: onAuthorize.success,
+    fail: onAuthorize.fail,
+  })
+);
 
 auth(passport);
 
@@ -148,9 +165,6 @@ app.get(
   (req, res) => {
     console.log("github session:", req.session);
     console.log("user info:", req.user);
-    //res
-    //  .status(200)
-    //  .json({ username: req.user.username, active: req.user.active });
     res.redirect("http://localhost:3000/chat");
     //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
@@ -159,3 +173,6 @@ const PORT = process.env.PORT || 3080;
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+//http.listen(PORT, () => {
+//        console.log('Listening on port ' + PORT);
+//});
