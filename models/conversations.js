@@ -6,11 +6,8 @@ const convoSchema = new mongoose.Schema(
     conversation: [
       {
         message: String,
-        user: {
+        sender: {
           displayName: String,
-          email: String,
-          photo: String,
-          uid: String,
         },
       },
     ],

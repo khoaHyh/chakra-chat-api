@@ -17,6 +17,7 @@ const auth = require("./auth");
 const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const User = require("./models/user");
+const Conversations = require("./models/conversations");
 const sendEmail = require("./utilities/sendEmail");
 const onAuthorize = require("./utilities/onAuthorize");
 
@@ -83,7 +84,33 @@ mongoose.connection.on("error", (err) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user has connected");
+  console.log("user connected.");
+  socket.on("disconnect", () => {
+    console.log("user disconnected.");
+  });
+  socket.on("chat message", (msg) => {
+    console.log("message: " + msg);
+    socket.broadcast.emit("received", { message: msg });
+
+    connect.then((db) => {
+      try {
+        let chatMessage = new Conversations({
+          message: msg,
+          sender: socket.request.user.username,
+        });
+        chatMessage.save((err, doc) => {
+          if (err) return res.json({ success: false, err });
+          Conversations.find({ sender: doc.sender })
+            .populate("sender")
+            .exec((err, doc) => {
+              return io.emit("chat message", doc);
+            });
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
 });
 
 app.get("/", (req, res) => {
