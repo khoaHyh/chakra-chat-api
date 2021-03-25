@@ -11,7 +11,15 @@ const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const flash = require("connect-flash");
 const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "http://localhost:3000",
+    //origin: "https://discord-clone-khoahyh.netlify.app/",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+const passportSocketIo = require("passport.socketio");
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const handleRegister = require("./controllers/register");
@@ -69,7 +77,7 @@ io.use(
     cookieParser: cookieParser,
     key: "express.sid",
     secret: process.env.SESSION_SECRET,
-    store: store,
+    store: sessionStore,
     success: onAuthorize.success,
     fail: onAuthorize.fail,
   })
