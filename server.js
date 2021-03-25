@@ -81,6 +81,11 @@ mongoose.connection.on("error", (err) => {
   // Will not log if database disconnects, need to listen for disconnection for that
   logError(err);
 });
+
+io.on("connection", (socket) => {
+  console.log("A user has connected");
+});
+
 app.get("/", (req, res) => {
   console.log("req.user:", req.user);
   console.log("req.session:", req.session);
@@ -90,6 +95,7 @@ app.get("/", (req, res) => {
     res.json({ user: null });
   }
 });
+
 app.get("/chat", (req, res) => {
   console.log("isAuth: " + req.isAuthenticated());
   if (req.isAuthenticated()) {
@@ -101,10 +107,12 @@ app.get("/chat", (req, res) => {
     res.status(200).json({ message: "isNotAuthenticated." });
   }
 });
+
 app.get("/logout", (req, res) => {
   req.logout();
   res.status(200).json({ message: "logout" });
 });
+
 app.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
@@ -120,9 +128,11 @@ app.post("/login", (req, res, next) => {
     });
   })(req, res, next);
 });
+
 app.post("/register", (req, res, next) => {
   handleRegister(req, res, next);
 });
+
 app.post("/resend", async (req, res) => {
   let email = req.body.email;
 
@@ -154,7 +164,9 @@ app.get("/confirmation/:hash", async (req, res) => {
   }
   //TODO redirect to login
 });
+
 app.get("/auth/github", passport.authenticate("github"));
+
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
@@ -169,10 +181,11 @@ app.get(
     //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
 );
+
 const PORT = process.env.PORT || 3080;
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
-//http.listen(PORT, () => {
-//        console.log('Listening on port ' + PORT);
+//app.listen(PORT, () => {
+//  console.log(`Listening on port ${PORT}`);
 //});
+http.listen(PORT, () => {
+  console.log("Listening on port " + PORT);
+});
