@@ -111,6 +111,7 @@ io.on("connection", (socket) => {
           Conversations.find({ sender: doc.sender })
             .populate("sender")
             .exec((err, doc) => {
+              if (err) console.log("chatMessage err:", err);
               return io.emit("chat message", doc);
             });
         });

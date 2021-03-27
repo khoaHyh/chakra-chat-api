@@ -3,14 +3,8 @@ const mongoose = require("mongoose");
 const convoSchema = new mongoose.Schema(
   {
     channelName: String,
-    conversation: [
-      {
-        message: String,
-        sender: {
-          displayName: String,
-        },
-      },
-    ],
+    message: String,
+    sender: String,
   },
   { timestamps: true }
 );
