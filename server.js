@@ -59,7 +59,8 @@ app.use(
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     cookie: {
       sameSite: "none",
-      secure: true,
+      secure: false,
+      //secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
@@ -91,9 +92,22 @@ mongoose.connection.on("error", (err) => {
   logError(err);
 });
 
+let currentUsers = 0;
 io.on("connection", (socket) => {
+  ++currentUsers;
+  io.emit("user", {
+    name: socket.request.user.username,
+    currentUsers,
+    connected: true,
+  });
   console.log("user connected.");
   socket.on("disconnect", () => {
+    --currentUsers;
+    io.emit("user", {
+      name: socket.request.user.username,
+      currentUsers,
+      connected: false,
+    });
     console.log("user disconnected.");
   });
   socket.on("chat message", (msg) => {
