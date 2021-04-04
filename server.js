@@ -111,28 +111,30 @@ io.on("connection", (socket) => {
     console.log("user disconnected.");
   });
   socket.on("chat message", (msg) => {
-    console.log("message: " + msg);
-    socket.broadcast.emit("received", { message: msg });
+    console.log("msg:", msg);
+    io.emit("chat message", msg);
+    //console.log("message: " + msg);
+    //socket.broadcast.emit("received", { message: msg });
 
-    connect.then((db) => {
-      try {
-        let chatMessage = new Conversations({
-          message: msg,
-          sender: socket.request.user.username,
-        });
-        chatMessage.save((err, doc) => {
-          if (err) return res.json({ success: false, err });
-          Conversations.find({ sender: doc.sender })
-            .populate("sender")
-            .exec((err, doc) => {
-              if (err) console.log("chatMessage err:", err);
-              return io.emit("chat message", doc);
-            });
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    });
+    //connect.then((db) => {
+    //  try {
+    //    let chatMessage = new Conversations({
+    //      message: msg,
+    //      sender: socket.request.user.username,
+    //    });
+    //    chatMessage.save((err, doc) => {
+    //      if (err) return res.json({ success: false, err });
+    //      Conversations.find({ sender: doc.sender })
+    //        .populate("sender")
+    //        .exec((err, doc) => {
+    //          if (err) console.log("chatMessage err:", err);
+    //          return io.emit("chat message", doc);
+    //        });
+    //    });
+    //  } catch (error) {
+    //    console.log(error);
+    //  }
+    //});
   });
 });
 
