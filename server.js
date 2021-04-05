@@ -110,9 +110,9 @@ io.on("connection", (socket) => {
     });
     console.log("user disconnected.");
   });
-  socket.on("chat message", (msg) => {
-    console.log("msg:", msg);
-    io.emit("chat message", msg);
+  socket.on("chat message", (data) => {
+    console.log("data:", data);
+    io.emit("chat message", data);
     //console.log("message: " + msg);
     //socket.broadcast.emit("received", { message: msg });
 
