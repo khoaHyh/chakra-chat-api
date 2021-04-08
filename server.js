@@ -37,7 +37,8 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(cors({ credentials: true, origin: true }));
+//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 //app.use(
 //  cors({
 //    origin: "https://discord-clone-khoahyh.netlify.app",
@@ -135,6 +136,24 @@ io.on("connection", (socket) => {
     //    console.log(error);
     //  }
     //});
+  });
+});
+
+app.post("/new/channel", (req, res, next) => {
+  const dbData = req.body;
+  console.log(dbData);
+
+  Conversations.findOne(dbData, (err, data) => {
+    if (err) return next(err);
+    if (data) {
+      console.log("Channel already exists");
+      res.json({ message: "Channel already exists." });
+    } else {
+      Conversations.create(dbData, (err, data) => {
+        if (err) return next(err);
+        res.status(201).json({ message: "Channel created!" });
+      });
+    }
   });
 });
 
