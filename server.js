@@ -177,6 +177,22 @@ app.get("/get/channelList", (req, res, next) => {
   });
 });
 
+app.get("/remove/allChannels", (req, res) => {
+  Conversations.remove({}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ message: "Error removing all channels." });
+    } else {
+      res.status(200).json({ message: "Success! Removed all channels." });
+    }
+  });
+});
+
+//app.post("/new/message", (req, res) => {
+//  const id = req.query.id;
+//  const newMessage = req.body;
+//});
+
 app.get("/", (req, res) => {
   console.log("req.user:", req.user);
   console.log("req.session:", req.session);
