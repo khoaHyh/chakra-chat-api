@@ -25,7 +25,7 @@ const auth = require("./auth");
 const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const User = require("./models/user");
-const Conversations = require("./models/conversations");
+const ChannelData = require("./models/channelData");
 const sendEmail = require("./utilities/sendEmail");
 const onAuthorize = require("./utilities/onAuthorize");
 
@@ -119,13 +119,13 @@ io.on("connection", (socket) => {
 
     //connect.then((db) => {
     //  try {
-    //    let chatMessage = new Conversations({
+    //    let chatMessage = new ChannelData({
     //      message: msg,
     //      sender: socket.request.user.username,
     //    });
     //    chatMessage.save((err, doc) => {
     //      if (err) return res.json({ success: false, err });
-    //      Conversations.find({ sender: doc.sender })
+    //      ChannelData.find({ sender: doc.sender })
     //        .populate("sender")
     //        .exec((err, doc) => {
     //          if (err) console.log("chatMessage err:", err);
@@ -143,13 +143,13 @@ app.post("/new/channel", (req, res, next) => {
   const dbData = req.body;
   console.log(dbData);
 
-  Conversations.findOne(dbData, (err, data) => {
+  ChannelData.findOne(dbData, (err, data) => {
     if (err) res.status(500).json(err);
     if (data) {
       console.log("Channel already exists");
       res.json({ message: "Channel already exists." });
     } else {
-      Conversations.create(dbData, (err, data) => {
+      ChannelData.create(dbData, (err, data) => {
         if (err) return next(err);
         res.status(201).json({ message: "Channel created!" });
       });
@@ -158,7 +158,7 @@ app.post("/new/channel", (req, res, next) => {
 });
 
 app.get("/get/channelList", (req, res, next) => {
-  Conversations.find((err, data) => {
+  ChannelData.find((err, data) => {
     if (err) {
       console.log(err);
       res.status(500).json(err);
@@ -178,7 +178,7 @@ app.get("/get/channelList", (req, res, next) => {
 });
 
 app.get("/remove/allChannels", (req, res) => {
-  Conversations.remove({}, (err, data) => {
+  ChannelData.remove({}, (err, data) => {
     if (err) {
       console.log(err);
       res.status(500).json({ message: "Error removing all channels." });
@@ -188,10 +188,22 @@ app.get("/remove/allChannels", (req, res) => {
   });
 });
 
-//app.post("/new/message", (req, res) => {
-//  const id = req.query.id;
-//  const newMessage = req.body;
-//});
+app.post("/new/message", (req, res) => {
+  const newMessage = req.body;
+
+  ChannelData.update(
+    { id: req.query.id },
+    { $push: { conversation: newMessage } },
+    (err, data) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json(err);
+      } else {
+        res.status(201).json(data);
+      }
+    }
+  );
+});
 
 app.get("/", (req, res) => {
   console.log("req.user:", req.user);

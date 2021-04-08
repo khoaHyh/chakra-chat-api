@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const convoSchema = new mongoose.Schema({
+const channelDataSchema = new mongoose.Schema({
   channelName: { type: String, unique: true },
   conversation: [
     {
@@ -11,4 +11,4 @@ const convoSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("conversations", convoSchema);
+module.exports = mongoose.model("channelData", channelDataSchema);
