@@ -144,7 +144,7 @@ app.post("/new/channel", (req, res, next) => {
   console.log(dbData);
 
   Conversations.findOne(dbData, (err, data) => {
-    if (err) return next(err);
+    if (err) res.status(500).json(err);
     if (data) {
       console.log("Channel already exists");
       res.json({ message: "Channel already exists." });
@@ -153,6 +153,26 @@ app.post("/new/channel", (req, res, next) => {
         if (err) return next(err);
         res.status(201).json({ message: "Channel created!" });
       });
+    }
+  });
+});
+
+app.get("/get/channelList", (req, res, next) => {
+  Conversations.find((err, data) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json(err);
+    } else {
+      let channelList = [];
+      data.map((channelData) => {
+        const channelInfo = {
+          id: channelData._id,
+          name: channelData.channelName,
+        };
+        channelList.push(channelInfo);
+      });
+
+      res.status(200).json(channelList);
     }
   });
 });
