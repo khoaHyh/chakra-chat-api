@@ -140,16 +140,17 @@ io.on("connection", (socket) => {
 });
 
 app.post("/new/channel", (req, res, next) => {
-  const dbData = req.body;
-  console.log(dbData);
+  const channelName = req.body.channelName;
+  const creator = req.body.creator;
+  console.log(channelName, creator);
 
-  ChannelData.findOne(dbData, (err, data) => {
+  ChannelData.findOne({ channelName }, (err, data) => {
     if (err) res.status(500).json(err);
     if (data) {
       console.log("Channel already exists");
       res.json({ message: "Channel already exists." });
     } else {
-      ChannelData.create(dbData, (err, data) => {
+      ChannelData.create({ channelName, creator }, (err, data) => {
         if (err) return next(err);
         res.status(201).json({ message: "Channel created!" });
       });
@@ -177,23 +178,35 @@ app.get("/get/channelList", (req, res, next) => {
   });
 });
 
-app.get("/remove/allChannels", (req, res) => {
-  ChannelData.remove({}, (err, data) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ message: "Error removing all channels." });
-    } else {
-      res.status(200).json({ message: "Success! Removed all channels." });
-    }
-  });
+app.post("/remove/allChannels", (req, res) => {
+  if (req.body.username === "boi1da") {
+    ChannelData.remove({}, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ message: "Error removing all channels." });
+      } else {
+        res.status(200).json({ message: "Success! Removed all channels." });
+      }
+    });
+  }
 });
 
 app.post("/new/message", (req, res) => {
+  //let timestamp = new Date().toUTCString();
   const newMessage = req.body;
+  const id = req.query.id;
+  const update = {
+    new: true,
+    upsert: true,
+    safe: true,
+  };
 
-  ChannelData.update(
-    { id: req.query.id },
-    { $push: { conversation: newMessage } },
+  ChannelData.findByIdAndUpdate(
+    id,
+    {
+      $push: { conversation: newMessage },
+    },
+    update,
     (err, data) => {
       if (err) {
         console.log(err);
@@ -203,6 +216,16 @@ app.post("/new/message", (req, res) => {
       }
     }
   );
+});
+
+app.get("/get/channelData", (req, res) => {
+  ChannelData.find((err, data) => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.status(200).json(data);
+    }
+  });
 });
 
 app.get("/", (req, res) => {
