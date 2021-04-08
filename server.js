@@ -228,6 +228,18 @@ app.get("/get/channelData", (req, res) => {
   });
 });
 
+app.get("/get/conversation", (req, res) => {
+  const id = req.query.id;
+
+  ChannelData.findById(id, (err, data) => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.status(200).json(data);
+    }
+  });
+});
+
 app.get("/", (req, res) => {
   console.log("req.user:", req.user);
   console.log("req.session:", req.session);
