@@ -183,7 +183,7 @@ app.get("/get/channelList", (req, res, next) => {
 
 app.post("/remove/allChannels", (req, res) => {
   if (req.body.username === "boi1da") {
-    ChannelData.remove({}, (err, data) => {
+    ChannelData.deleteMany({}, (err, data) => {
       if (err) {
         console.log(err);
         res.status(500).json({ message: "Error removing all channels." });
