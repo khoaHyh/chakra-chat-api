@@ -93,49 +93,52 @@ mongoose.connection.on("error", (err) => {
   logError(err);
 });
 
-let currentUsers = 0;
 io.on("connection", (socket) => {
-  ++currentUsers;
-  io.emit("user", {
-    name: socket.request.user.username,
-    currentUsers,
-    connected: true,
-  });
-  console.log("user connected.");
-  socket.on("disconnect", () => {
-    --currentUsers;
-    io.emit("user", {
-      name: socket.request.user.username,
-      currentUsers,
-      connected: false,
-    });
-    console.log("user disconnected.");
-  });
-  socket.on("chat message", (data) => {
-    console.log("data:", data);
-    io.emit("chat message", data);
-    //console.log("message: " + msg);
-    //socket.broadcast.emit("received", { message: msg });
+  const user = socket.request.user.username;
 
-    //connect.then((db) => {
-    //  try {
-    //    let chatMessage = new ChannelData({
-    //      message: msg,
-    //      sender: socket.request.user.username,
-    //    });
-    //    chatMessage.save((err, doc) => {
-    //      if (err) return res.json({ success: false, err });
-    //      ChannelData.find({ sender: doc.sender })
-    //        .populate("sender")
-    //        .exec((err, doc) => {
-    //          if (err) console.log("chatMessage err:", err);
-    //          return io.emit("chat message", doc);
-    //        });
-    //    });
-    //  } catch (error) {
-    //    console.log(error);
-    //  }
-    //});
+  // Welcome new connection
+  socket.emit("message", `Welcome ${user}!`);
+
+  // Emit when a user disconnects
+  socket.on("disconnect", () => {
+    io.emit("message", `${user} has left the chat.`);
+  });
+
+  //socket.on("get-conversation", (channelId) => {
+  //  ChannelData.findById(id, (err, data) => {
+  //    if (err) {
+  //      res.status(500).json(err);
+  //    } else {
+  //      //res.status(200).json(data);
+  //      socket.emit("return-conversation", data);
+  //    }
+  //  });
+  //});
+
+  // Listen for sent message
+  socket.on("send-message", ({ id, message, timestamp, sender }) => {
+    const update = {
+      new: true,
+      upsert: true,
+      safe: true,
+    };
+
+    ChannelData.findByIdAndUpdate(
+      id,
+      {
+        $push: { conversation: { message, timestamp, sender } },
+      },
+      update,
+      (err, data) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json(err);
+        } else {
+          //res.status(201).json(data);
+          socket.emit("receive-message", data.conversation);
+        }
+      }
+    );
   });
 });
 
@@ -194,7 +197,7 @@ app.post("/remove/allChannels", (req, res) => {
 app.post("/new/message", (req, res) => {
   //let timestamp = new Date().toUTCString();
   const newMessage = req.body;
-  const id = req.query.id;
+  const id = req.query.id || req.body.id;
   const update = {
     new: true,
     upsert: true,
