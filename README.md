@@ -12,8 +12,8 @@
 
 ## Tech/framework used
 #### Built with:
-    * MongoDB
-    * Express
-    * Node.js
-    * Passport.js
-    * Heroku
+  * MongoDB
+  * Express
+  * Node.js
+  * Passport.js
+  * Heroku
