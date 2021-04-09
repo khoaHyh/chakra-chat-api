@@ -104,17 +104,6 @@ io.on("connection", (socket) => {
     io.emit("message", `${user} has left the chat.`);
   });
 
-  //socket.on("get-conversation", (channelId) => {
-  //  ChannelData.findById(id, (err, data) => {
-  //    if (err) {
-  //      res.status(500).json(err);
-  //    } else {
-  //      //res.status(200).json(data);
-  //      socket.emit("return-conversation", data);
-  //    }
-  //  });
-  //});
-
   // Listen for sent message
   socket.on("send-message", ({ id, message, timestamp, sender }) => {
     const update = {
@@ -155,7 +144,7 @@ app.post("/new/channel", (req, res, next) => {
     } else {
       ChannelData.create({ channelName, creator }, (err, data) => {
         if (err) return next(err);
-        res.status(201).json({ message: "Channel created!" });
+        res.status(201).json(data);
       });
     }
   });
