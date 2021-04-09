@@ -37,14 +37,14 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-app.use(cors({ credentials: true, origin: true }));
+//app.use(cors({ credentials: true, origin: true }));
 //app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-//app.use(
-//  cors({
-//    origin: "https://discord-clone-khoahyh.netlify.app",
-//    credentials: true,
-//  })
-//);
+app.use(
+  cors({
+    origin: "https://discord-clone-khoahyh.netlify.app",
+    credentials: true,
+  })
+);
 app.use(flash());
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -60,8 +60,8 @@ app.use(
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     cookie: {
       sameSite: "none",
-      secure: false,
-      //secure: true,
+      //secure: false,
+      secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
@@ -316,15 +316,15 @@ app.get("/auth/github", passport.authenticate("github"));
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    //failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
-    failureRedirect: "/login",
+    failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    //failureRedirect: "/login",
     session: true,
   }),
   (req, res) => {
     console.log("github session:", req.session);
     console.log("user info:", req.user);
-    res.redirect("http://localhost:3000/chat");
-    //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
+    //res.redirect("http://localhost:3000/chat");
+    res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
 );
 

@@ -15,5 +15,11 @@
   * MongoDB
   * Express
   * Node.js
+  * Socket.IO
   * Passport.js
   * Heroku
+
+## Features
+  * Real-time chat with other users via Socket.IO
+  * Verifies emails by sending a verification email with Nodemailer
+  * Local and OAuth authentication via Passport.js library
