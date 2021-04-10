@@ -54,15 +54,14 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: true,
-    saveUninitialized: false,
+    saveUninitialized: true,
     // Equals 1 day (1 day * 1000 ms/1 sec * 60 sec/1 min * 60 min/1 hr * 24 hr/1 day)
     // set httponly: false for https
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     cookie: {
       sameSite: "none",
-      //secure: false,
-      secure: true,
-      httpOnly: false,
+      secure: false,
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
