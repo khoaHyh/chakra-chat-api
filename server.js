@@ -50,6 +50,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// https://stackoverflow.com/questions/44039069/express-session-secure-cookies-not-working
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -60,8 +62,8 @@ app.use(
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     cookie: {
       sameSite: "none",
-      secure: false,
-      httpOnly: true,
+      secure: true,
+      httpOnly: false,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
