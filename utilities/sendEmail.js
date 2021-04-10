@@ -22,7 +22,7 @@ module.exports = (email, hash) => {
   };
 
   // send mail with defined transport object
-  transporter.sendMail(mailOptions, (err, response) => {
+  transporter.sendMail(mailOptions, (err, res) => {
     if (err) {
       console.log(err);
       res.status(500).json({
