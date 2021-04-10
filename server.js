@@ -269,6 +269,8 @@ app.post("/login", (req, res, next) => {
     }
     req.logIn(user, (err) => {
       if (err) return next(err);
+      console.log("local req:", req.user);
+      console.log("local sesh:", req.session);
       return res
         .status(200)
         .json({ username: req.user.username, active: req.user.active });
