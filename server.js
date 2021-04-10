@@ -13,8 +13,8 @@ const flash = require("connect-flash");
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: {
-    //origin: "http://localhost:3000",
-    origin: "https://discord-clone-khoahyh.netlify.app",
+    origin: "http://localhost:3000",
+    //origin: "https://discord-clone-khoahyh.netlify.app",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -38,13 +38,13 @@ app.use((req, res, next) => {
   next();
 });
 //app.use(cors({ credentials: true, origin: true }));
-//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use(
-  cors({
-    origin: "https://discord-clone-khoahyh.netlify.app",
-    credentials: true,
-  })
-);
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+//app.use(
+//  cors({
+//    origin: "https://discord-clone-khoahyh.netlify.app",
+//    credentials: true,
+//  })
+//);
 app.use(flash());
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -62,8 +62,10 @@ app.use(
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     cookie: {
       sameSite: "none",
-      secure: true,
-      httpOnly: false,
+      //secure: true,
+      secure: false,
+      //httpOnly: false,
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
@@ -234,15 +236,12 @@ app.get("/get/conversation", (req, res) => {
   });
 });
 
+/** START OF AUTHENTICATION ROUTES **/
+
 app.get("/", (req, res) => {
   console.log("req.user:", req.user);
   console.log("req.session:", req.session);
   console.log("isAuthenticated:", req.isAuthenticated());
-  //if (req.user) {
-  //  res.json({ username: req.user.username, active: req.user.active });
-  //} else {
-  //  res.json({ user: null });
-  //}
   if (req.isAuthenticated()) {
     res.status(200).json({
       message: "isAuthenticated.",
@@ -307,6 +306,18 @@ app.post("/resend", async (req, res) => {
     });
   }
 });
+app.post("/remove/allAccounts", () => {
+  if (req.body.username === "boi1da") {
+    User.deleteMany({}, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ message: "Error removing all users." });
+      } else {
+        res.status(200).json({ message: "Success! Removed all users." });
+      }
+    });
+  }
+});
 app.get("/confirmation/:hash", async (req, res) => {
   const { hash } = req.params;
   try {
@@ -336,17 +347,19 @@ app.get("/auth/github", passport.authenticate("github"));
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
-    //failureRedirect: "/login",
+    //failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
+    failureRedirect: "http://localhost:3000/login",
     session: true,
   }),
   (req, res) => {
     console.log("github session:", req.session);
     console.log("user info:", req.user);
-    //res.redirect("http://localhost:3000/chat");
-    res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
+    res.redirect("http://localhost:3000/chat");
+    //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
   }
 );
+
+/** END OF AUTHENTICATION ROUTES **/
 
 const PORT = process.env.PORT || 3080;
 //app.listen(PORT, () => {

@@ -8,6 +8,7 @@ module.exports = async (req, res, next) => {
   let email = req.body.email;
 
   // Check if the user is already in the database and act accordingly
+  // Need to check if the email has already been used
   let user = await User.findOne({ username: uname });
   if (user) {
     console.log(`user exists: ${user.username}`);
