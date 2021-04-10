@@ -62,6 +62,7 @@ app.use(
       sameSite: "none",
       //secure: false,
       secure: true,
+      httpOnly: false,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
@@ -301,12 +302,17 @@ app.get("/confirmation/:hash", async (req, res) => {
       { active: true },
       { returnOriginal: false },
       (err, data) => {
-        if (err) console.log("confirmation error:", error);
+        if (err) {
+          console.log("confirmation error:", error);
+          res.status(500).json(error);
+        }
         console.log("user confirmed!", data);
+        res.status(200).json(data);
       }
     );
   } catch (error) {
     console.log("send an error");
+    res.status(500).json(error);
   }
   //TODO redirect to login
 });
