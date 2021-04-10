@@ -236,6 +236,7 @@ app.get("/get/conversation", (req, res) => {
 app.get("/", (req, res) => {
   console.log("req.user:", req.user);
   console.log("req.session:", req.session);
+  console.log("isAuthenticated:", req.isAuthenticated());
   if (req.user) {
     res.json({ username: req.user.username, active: req.user.active });
   } else {
