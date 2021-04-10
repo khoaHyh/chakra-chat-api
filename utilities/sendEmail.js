@@ -24,7 +24,7 @@ module.exports = (email, hash) => {
   // send mail with defined transport object
   transporter.sendMail(mailOptions, (err, response) => {
     if (err) {
-      console.log(error);
+      console.log(err);
       res.status(500).json({
         message: "Technical Issue! Please click on resend or try again later.",
       });
