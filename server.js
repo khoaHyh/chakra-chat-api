@@ -237,10 +237,19 @@ app.get("/", (req, res) => {
   console.log("req.user:", req.user);
   console.log("req.session:", req.session);
   console.log("isAuthenticated:", req.isAuthenticated());
-  if (req.user) {
-    res.json({ username: req.user.username, active: req.user.active });
+  //if (req.user) {
+  //  res.json({ username: req.user.username, active: req.user.active });
+  //} else {
+  //  res.json({ user: null });
+  //}
+  if (req.isAuthenticated()) {
+    res.status(200).json({
+      message: "isAuthenticated.",
+      session: req.session,
+      username: req.user.username,
+    });
   } else {
-    res.json({ user: null });
+    res.status(200).json({ message: "isNotAuthenticated." });
   }
 });
 
@@ -250,6 +259,7 @@ app.get("/chat", (req, res) => {
     res.status(200).json({
       message: "isAuthenticated.",
       session: req.session,
+      username: req.user.username,
     });
   } else {
     res.status(200).json({ message: "isNotAuthenticated." });
