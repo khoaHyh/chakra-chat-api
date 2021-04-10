@@ -11,10 +11,11 @@ const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const flash = require("connect-flash");
 const http = require("http").createServer(app);
+const originUrl = "http://localhost:3000";
+//const originUrl = "https://discord-clone-khoahyh.netlify.app";
 const io = require("socket.io")(http, {
   cors: {
-    origin: "http://localhost:3000",
-    //origin: "https://discord-clone-khoahyh.netlify.app",
+    origin: originUrl,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -28,6 +29,10 @@ const User = require("./models/user");
 const ChannelData = require("./models/channelData");
 const sendEmail = require("./utilities/sendEmail");
 const onAuthorize = require("./utilities/onAuthorize");
+const {
+  httpOnlyCookie,
+  secureCookie,
+} = require("./utilities/handleSessionCookies");
 
 connectDB();
 
@@ -38,13 +43,7 @@ app.use((req, res, next) => {
   next();
 });
 //app.use(cors({ credentials: true, origin: true }));
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-//app.use(
-//  cors({
-//    origin: "https://discord-clone-khoahyh.netlify.app",
-//    credentials: true,
-//  })
-//);
+app.use(cors({ credentials: true, origin: originUrl }));
 app.use(flash());
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -63,9 +62,9 @@ app.use(
     cookie: {
       sameSite: "none",
       //secure: true,
-      secure: false,
+      secure: secureCookie(originUrl),
       //httpOnly: false,
-      httpOnly: true,
+      httpOnly: httpOnlyCookie(originUrl),
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",
@@ -74,6 +73,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
 /** END OF MIDDLEWARE **/
 
 // Parse and decode the cookie that contains the passport session
@@ -347,15 +347,13 @@ app.get("/auth/github", passport.authenticate("github"));
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    //failureRedirect: "https://discord-clone-khoahyh.netlify.app/login",
-    failureRedirect: "http://localhost:3000/login",
+    failureRedirect: `${originUrl}/login`,
     session: true,
   }),
   (req, res) => {
     console.log("github session:", req.session);
     console.log("user info:", req.user);
-    res.redirect("http://localhost:3000/chat");
-    //res.redirect("https://discord-clone-khoahyh.netlify.app/chat");
+    res.redirect(`${originUrl}/chat`);
   }
 );
 
