@@ -42,7 +42,6 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
-//app.use(cors({ credentials: true, origin: true }));
 app.use(cors({ credentials: true, origin: originUrl }));
 app.use(flash());
 app.use(bodyParser.json());
@@ -127,7 +126,6 @@ io.on("connection", (socket) => {
           console.log(err);
           res.status(500).json(err);
         } else {
-          //res.status(201).json(data);
           socket.emit("receive-message", data.conversation);
         }
       }
@@ -293,18 +291,22 @@ app.post("/register", (req, res, next) => {
   handleRegister(req, res, next);
 });
 
-app.post("/resend", async (req, res) => {
+app.post("/resend", (req, res) => {
   let email = req.body.email;
 
-  const user = await User.findOne({ email: email });
-  if (user) {
-    sendEmail(email, user.emailHash);
-    res.status(200).json({ message: "Resent the verification email!" });
-  } else {
-    res.status(404).json({
-      message: "No user found with that email. Please register again.",
-    });
-  }
+  User.findOne({ email: email }, (err, user) => {
+    if (err) {
+      res.status(404).json({
+        message: "Error",
+        error: err,
+      });
+    } else {
+      sendEmail(email, user.emailHash);
+      res
+        .status(200)
+        .json({ message: `Resent the verification email to ${email}` });
+    }
+  });
 });
 app.post("/remove/allAccounts", () => {
   if (req.body.username === "boi1da") {

@@ -26,7 +26,8 @@ module.exports = (email, hash) => {
     if (err) {
       console.log(err);
       res.status(500).json({
-        message: "Technical Issue! Please click on resend or try again later.",
+        message:
+          "Technical Issue! Please try again later or request assistance.",
       });
     } else {
       console.log("Email sent.");
