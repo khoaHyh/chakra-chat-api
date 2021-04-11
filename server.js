@@ -11,8 +11,8 @@ const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const flash = require("connect-flash");
 const http = require("http").createServer(app);
-const originUrl = "http://localhost:3000";
-//const originUrl = "https://discord-clone-khoahyh.netlify.app";
+//const originUrl = "http://localhost:3000";
+const originUrl = "https://discord-clone-khoahyh.netlify.app";
 const io = require("socket.io")(http, {
   cors: {
     origin: originUrl,
