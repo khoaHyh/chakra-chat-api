@@ -12,6 +12,7 @@
     "dev": "nodemon ./server.js"
   },
   "dependencies": {
+    "bad-words": "^3.0.4",
     "bcrypt": "^5.0.1",
     "connect-mongo": "^4.4.0",
     "cookie-parser": "^1.4.5",

@@ -22,7 +22,6 @@ const io = require("socket.io")(http, {
 const passportSocketIo = require("passport.socketio");
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
-const handleRegister = require("./controllers/register");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const User = require("./models/user");
 const ChannelData = require("./models/channelData");
@@ -32,6 +31,7 @@ const {
   httpOnlyCookie,
   secureCookie,
 } = require("./utilities/handleSessionCookies");
+const authRoutes = require("./routes/auth");
 
 // Connect to MongoDB database
 connectDB();
@@ -42,16 +42,21 @@ auth(passport);
 /** START OF MIDDLEWARE **/
 app.use(logger("dev"));
 app.use(cors({ credentials: true, origin: originUrl }));
+
+// Parse cookies attached to client request object
 app.use(cookieParser());
+
+// Deal with incoming data in the body of the request object
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 // https://stackoverflow.com/questions/44039069/express-session-secure-cookies-not-working
 app.set("trust proxy", 1);
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     // Equals 1 day (1 day * 1000 ms/1 sec * 60 sec/1 min * 60 min/1 hr * 24 hr/1 day)
     // set httponly: false for https
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
@@ -67,6 +72,8 @@ app.use(
     store: sessionStore,
   })
 );
+
+// Initialize passport and allow persistent login sessions
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -261,33 +268,6 @@ app.get("/chat", (req, res) => {
   }
 });
 
-app.get("/logout", (req, res) => {
-  req.logout();
-  res.status(200).json({ message: "logout" });
-});
-
-app.post("/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) return next(err);
-    if (!user) {
-      console.log("info.message:", info);
-      return res.status(403).json({ success: false, message: info.message });
-    }
-    req.logIn(user, (err) => {
-      if (err) return next(err);
-      console.log("local req:", req.user);
-      console.log("local sesh:", req.session);
-      return res
-        .status(200)
-        .json({ username: req.user.username, active: req.user.active });
-    });
-  })(req, res, next);
-});
-
-app.post("/register", (req, res, next) => {
-  handleRegister(req, res, next);
-});
-
 app.post("/resend", (req, res) => {
   let email = req.body.email;
 
@@ -341,27 +321,11 @@ app.get("/confirmation/:hash", async (req, res) => {
   //TODO redirect to login
 });
 
-app.get("/auth/github", passport.authenticate("github"));
-
-app.get(
-  "/auth/github/callback",
-  passport.authenticate("github", {
-    failureRedirect: `${originUrl}/login`,
-    session: true,
-  }),
-  (req, res) => {
-    console.log("github session:", req.session);
-    console.log("user info:", req.user);
-    res.redirect(`${originUrl}/chat`);
-  }
-);
+app.use("/auth", authRoutes);
 
 /** END OF AUTHENTICATION ROUTES **/
 
-const PORT = process.env.PORT || 3080;
-//app.listen(PORT, () => {
-//  console.log(`Listening on port ${PORT}`);
-//});
+const PORT = process.env.PORT || 8080;
 http.listen(PORT, () => {
-  console.log("Listening on port " + PORT);
+  console.log(`Listening on port ${PORT}`);
 });
