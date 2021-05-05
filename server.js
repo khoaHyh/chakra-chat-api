@@ -3,13 +3,12 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
+const logger = require("morgan");
 const session = require("express-session");
-const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
-const flash = require("connect-flash");
 const http = require("http").createServer(app);
 //const originUrl = "http://localhost:3000";
 const originUrl = "https://discord-clone-khoahyh.netlify.app";
@@ -34,17 +33,15 @@ const {
   secureCookie,
 } = require("./utilities/handleSessionCookies");
 
+// Connect to MongoDB database
 connectDB();
 
+// Enable app to use passport strategies
+auth(passport);
+
 /** START OF MIDDLEWARE **/
-// Implement a Root-Level Request Logger Middleware
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - ${req.ip}`);
-  next();
-});
+app.use(logger("dev"));
 app.use(cors({ credentials: true, origin: originUrl }));
-app.use(flash());
-app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
