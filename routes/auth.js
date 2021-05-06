@@ -1,22 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const ensureAuthenticated = require("../utilities/ensureAuthenticated");
 const handleAuth = require("../controllers/handleAuth");
+const ensureAuthenticated = require("../utilities/ensureAuthenticated");
 
 //const originUrl = "http://localhost:3000";
 const originUrl = "https://discord-clone-khoahyh.netlify.app";
 
-router.post("/auth/register", handleAuth.register);
+router.get("/", ensureAuthenticated, handleAuth.sessionExists);
 
-router.post("/auth/login", handleAuth.login);
+router.post("/register", handleAuth.register);
 
-router.get("/auth/logout", handleAuth.logout);
+router.post("/resend", handleAuth.resendEmail);
 
-router.get("/auth/github", passport.authenticate("github"));
+router.post("/login", handleAuth.login);
+
+router.get("/logout", handleAuth.logout);
+
+router.get("/confirmation/:hash", handleAuth.confirmation);
+
+router.get("/github", passport.authenticate("github"));
 
 router.get(
-  "/auth/github/callback",
+  "/github/callback",
   passport.authenticate("github", {
     failureRedirect: `${originUrl}/login`,
     session: true,

@@ -25,15 +25,15 @@ module.exports = (email, hash) => {
   transporter.sendMail(mailOptions, (err, res) => {
     if (err) {
       console.log(err);
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Technical Issue! Please try again later or request assistance.",
       });
-    } else {
-      console.log("Email sent.");
-      res.status(200).json({
-        message: `A verication email has been sent to ${email}. Please check your inbox and click on the link or click resend.`,
-      });
     }
+
+    console.log("Email sent.");
+    res.status(200).json({
+      message: `A verication email has been sent to ${email}. Please check your inbox and click on the link or click resend.`,
+    });
   });
 };

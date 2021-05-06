@@ -9,6 +9,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
+const passportSocketIo = require("passport.socketio");
+
 const http = require("http").createServer(app);
 //const originUrl = "http://localhost:3000";
 const originUrl = "https://discord-clone-khoahyh.netlify.app";
@@ -19,13 +21,11 @@ const io = require("socket.io")(http, {
     credentials: true,
   },
 });
-const passportSocketIo = require("passport.socketio");
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const User = require("./models/user");
 const ChannelData = require("./models/channelData");
-const sendEmail = require("./utilities/sendEmail");
 const onAuthorize = require("./utilities/onAuthorize");
 const {
   httpOnlyCookie,
@@ -39,7 +39,6 @@ connectDB();
 // Enable app to use passport strategies
 auth(passport);
 
-/** START OF MIDDLEWARE **/
 app.use(logger("dev"));
 app.use(cors({ credentials: true, origin: originUrl }));
 
@@ -77,8 +76,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-/** END OF MIDDLEWARE **/
-
 // Parse and decode the cookie that contains the passport session
 // then deserialize to obtain user object
 io.use(
@@ -91,8 +88,6 @@ io.use(
     fail: onAuthorize.fail,
   })
 );
-
-auth(passport);
 
 // Listen for error events on the database connection
 mongoose.connection.on("error", (err) => {
@@ -238,53 +233,6 @@ app.get("/get/conversation", (req, res) => {
   });
 });
 
-/** START OF AUTHENTICATION ROUTES **/
-
-app.get("/", (req, res) => {
-  console.log("req.user:", req.user);
-  console.log("req.session:", req.session);
-  console.log("isAuthenticated:", req.isAuthenticated());
-  if (req.isAuthenticated()) {
-    res.status(200).json({
-      message: "isAuthenticated.",
-      session: req.session,
-      username: req.user.username,
-    });
-  } else {
-    res.status(200).json({ message: "isNotAuthenticated." });
-  }
-});
-
-app.get("/chat", (req, res) => {
-  console.log("isAuth: " + req.isAuthenticated());
-  if (req.isAuthenticated()) {
-    res.status(200).json({
-      message: "isAuthenticated.",
-      session: req.session,
-      username: req.user.username,
-    });
-  } else {
-    res.status(200).json({ message: "isNotAuthenticated." });
-  }
-});
-
-app.post("/resend", (req, res) => {
-  let email = req.body.email;
-
-  User.findOne({ email: email }, (err, user) => {
-    if (err) {
-      res.status(404).json({
-        message: "Error",
-        error: err,
-      });
-    } else {
-      sendEmail(email, user.emailHash);
-      res
-        .status(200)
-        .json({ message: `Resent the verification email to ${email}` });
-    }
-  });
-});
 app.post("/remove/allAccounts", () => {
   if (req.body.username === "boi1da") {
     User.deleteMany({}, (err, data) => {
@@ -297,33 +245,9 @@ app.post("/remove/allAccounts", () => {
     });
   }
 });
-app.get("/confirmation/:hash", async (req, res) => {
-  const { hash } = req.params;
-  try {
-    console.log("lookup user and update");
-    User.findOneAndUpdate(
-      { emailHash: hash },
-      { active: true },
-      { returnOriginal: false },
-      (err, data) => {
-        if (err) {
-          console.log("confirmation error:", error);
-          res.status(500).json(error);
-        }
-        console.log("user confirmed!", data);
-        res.status(200).json(data);
-      }
-    );
-  } catch (error) {
-    console.log("send an error");
-    res.status(500).json(error);
-  }
-  //TODO redirect to login
-});
 
+// Routes
 app.use("/auth", authRoutes);
-
-/** END OF AUTHENTICATION ROUTES **/
 
 const PORT = process.env.PORT || 8080;
 http.listen(PORT, () => {

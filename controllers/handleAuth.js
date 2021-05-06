@@ -93,13 +93,59 @@ const logout = (req, res) => {
   res.status(200).json({ message: "Unauthenticated." });
 };
 
+const confirmation = async (req, res, next) => {
+  const { hash } = req.params;
+  try {
+    // Find user by emailHash property and update the active property
+    const user = await User.findOneAndUpdate(
+      { emailHash: hash },
+      { active: true },
+      { returnOriginal: false }
+    );
+
+    if (!user) {
+      return res.status(409).json({ message: "Unable to activate account." });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log("send an error");
+    return res.status(500).json(error);
+  }
+};
+
 // Respond with code 200 and specific response body if user session exists
 const sessionExists = (req, res) => {
   res.status(200).json({
-    message: "Authenticated!",
-    sessionPassportId: req.session.passport.user,
+    message: "isAuthenticated.",
+    session: req.session,
     username: req.user.username,
   });
 };
 
-module.exports = { register, login, logout, sessionExists };
+const resendEmail = async (req, res, next) => {
+  let email = req.body.email;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res
+      .status(400)
+      .json({ message: "Error while resending verification email." });
+  }
+
+  sendEmail(email, user.emailHash);
+
+  res
+    .status(200)
+    .json({ message: `Resent the verification email to ${email}` });
+};
+
+module.exports = {
+  register,
+  login,
+  logout,
+  confirmation,
+  sessionExists,
+  resendEmail,
+};
