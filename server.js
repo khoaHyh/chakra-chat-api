@@ -13,7 +13,7 @@ const passportSocketIo = require("passport.socketio");
 
 const http = require("http").createServer(app);
 const originUrl = "http://localhost:3000";
-//const originUrl = "https://discord-clone-khoahyh.netlify.app";
+//const originUrl = "https://chakra-chat.netlify.app";
 const io = require("socket.io")(http, {
   cors: {
     origin: originUrl,
@@ -24,7 +24,6 @@ const io = require("socket.io")(http, {
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
-const User = require("./models/user");
 const ChannelData = require("./models/channelData");
 const onAuthorize = require("./utilities/onAuthorize");
 const {

@@ -56,31 +56,23 @@ module.exports = (passport) => {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL:
-          "https://discord-clone-api-khoahyh.herokuapp.com/auth/github/callback",
+          "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      (accessToken, refreshToken, profile, done) => {
-        console.log(profile);
-        // Database logic here with callback containing our user object
-        User.findOne({ githubId: profile.id }, (err, user) => {
-          if (err) return done(err, null);
+      async (accessToken, refreshToken, profile, done) => {
+        const user = await User.findOne({ githubId: profile.id });
 
-          if (user) {
-            console.log(`user exists: ${user.username}`);
-            return done(err, user);
-          } else {
-            user = new User({
-              githubId: profile.id,
-              username: profile.username,
-              provider: "github",
-              active: true,
-            });
+        if (user) {
+          return done(null, false, { message: "Failed Github OAuth." });
+        }
 
-            user.save((err, doc) => {
-              if (err) console.error(`save error: ${err}`);
-              return done(err, doc);
-            });
-          }
+        user = await User.create({
+          githubId: profile.id,
+          username: profile.username,
+          provider: "github",
+          active: true,
         });
+
+        return done(null, user, { message: "Github OAuth successful." });
       }
     )
   );

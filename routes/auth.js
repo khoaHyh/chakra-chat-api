@@ -5,7 +5,7 @@ const handleAuth = require("../controllers/handleAuth");
 const ensureAuthenticated = require("../utilities/ensureAuthenticated");
 
 const originUrl = "http://localhost:3000";
-//const originUrl = "https://discord-clone-khoahyh.netlify.app";
+//const originUrl = "https://chakra-chat.netlify.app";
 
 router.get("/", ensureAuthenticated, handleAuth.sessionExists);
 
