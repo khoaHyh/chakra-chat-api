@@ -12,8 +12,8 @@ const passport = require("passport");
 const passportSocketIo = require("passport.socketio");
 
 const http = require("http").createServer(app);
-//const originUrl = "http://localhost:3000";
-const originUrl = "https://discord-clone-khoahyh.netlify.app";
+const originUrl = "http://localhost:3000";
+//const originUrl = "https://discord-clone-khoahyh.netlify.app";
 const io = require("socket.io")(http, {
   cors: {
     origin: originUrl,
@@ -132,95 +132,6 @@ io.on("connection", (socket) => {
   });
 });
 
-app.post("/new/channel", (req, res, next) => {
-  const channelName = req.body.channelName;
-  const creator = req.body.creator;
-  console.log(channelName, creator);
-
-  ChannelData.findOne({ channelName }, (err, data) => {
-    if (err) res.status(500).json(err);
-    if (data) {
-      console.log("Channel already exists");
-      res.json({ message: "Channel already exists." });
-    } else {
-      ChannelData.create({ channelName, creator }, (err, data) => {
-        if (err) return next(err);
-        res.status(201).json(data);
-      });
-    }
-  });
-});
-
-app.get("/get/channelList", (req, res, next) => {
-  ChannelData.find((err, data) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json(err);
-    } else {
-      let channelList = [];
-      data.map((channelData) => {
-        const channelInfo = {
-          id: channelData._id,
-          name: channelData.channelName,
-        };
-        channelList.push(channelInfo);
-      });
-
-      res.status(200).json(channelList);
-    }
-  });
-});
-
-app.post("/remove/allChannels", (req, res) => {
-  if (req.body.username === "boi1da") {
-    ChannelData.deleteMany({}, (err, data) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ message: "Error removing all channels." });
-      } else {
-        res.status(200).json({ message: "Success! Removed all channels." });
-      }
-    });
-  }
-});
-
-app.post("/new/message", (req, res) => {
-  //let timestamp = new Date().toUTCString();
-  const newMessage = req.body;
-  const id = req.query.id || req.body.id;
-  const update = {
-    new: true,
-    upsert: true,
-    safe: true,
-  };
-
-  ChannelData.findByIdAndUpdate(
-    id,
-    {
-      $push: { conversation: newMessage },
-    },
-    update,
-    (err, data) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json(err);
-      } else {
-        res.status(201).json(data);
-      }
-    }
-  );
-});
-
-app.get("/get/channelData", (req, res) => {
-  ChannelData.find((err, data) => {
-    if (err) {
-      res.status(500).json(err);
-    } else {
-      res.status(200).json(data);
-    }
-  });
-});
-
 app.get("/get/conversation", (req, res) => {
   const id = req.query.id;
 
@@ -231,19 +142,6 @@ app.get("/get/conversation", (req, res) => {
       res.status(200).json(data);
     }
   });
-});
-
-app.post("/remove/allAccounts", () => {
-  if (req.body.username === "boi1da") {
-    User.deleteMany({}, (err, data) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ message: "Error removing all users." });
-      } else {
-        res.status(200).json({ message: "Success! Removed all users." });
-      }
-    });
-  }
 });
 
 // Routes
