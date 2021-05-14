@@ -11,7 +11,9 @@ module.exports = (passport) => {
   // Convert key into original object and retrieve object contents
   passport.deserializeUser(async (id, done) => {
     try {
+      console.log("id:", id);
       let user = await User.findById(id);
+      console.log("user:", user);
       if (!user) return done(null, false, { message: "user not found" });
       done(null, user);
     } catch (error) {
