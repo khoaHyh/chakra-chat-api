@@ -61,7 +61,7 @@ module.exports = (passport) => {
           const user = await User.findOne({ githubId: profile.id });
 
           if (user) {
-            return done(null, false, { message: "Failed Github OAuth." });
+            return done(null, user, { message: "Github OAuth successful" });
           }
 
           user = await User.create({
