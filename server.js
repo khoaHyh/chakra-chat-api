@@ -12,8 +12,8 @@ const passport = require("passport");
 const passportSocketIo = require("passport.socketio");
 
 const http = require("http").createServer(app);
-const originUrl = "http://localhost:3000";
-//const originUrl = "https://chakra-chat.netlify.app";
+//const originUrl = "http://localhost:3000";
+const originUrl = "https://chakra-chat.netlify.app";
 const io = require("socket.io")(http, {
   cors: {
     origin: originUrl,
