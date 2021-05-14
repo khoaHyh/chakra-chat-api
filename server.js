@@ -95,21 +95,36 @@ mongoose.connection.on("error", (err) => {
   logError(err);
 });
 
+// Keep track of # of users
+let numOfUsers = 0;
+
 io.on("connection", (socket) => {
+  numOfUsers++;
   const user = socket.request.user.username;
 
   // Welcome new connection
-  io.emit("welcome-message", `${user} has joined the chat!`);
+  io.emit("receive-message", {
+    sender: "Chakra-Chat Server",
+    timestamp: Date.now(),
+    message: `${user} has joined the chat!`,
+    numOfUsers,
+  });
 
   // Emit when a user disconnects
   socket.on("disconnect", () => {
-    io.emit("message", `${user} has left the chat.`);
+    numOfUsers--;
+    io.emit("receive-message", {
+      sender: "Chakra-Chat Server",
+      timestamp: Date.now(),
+      message: `${user} has left the chat.`,
+      numOfUsers,
+    });
   });
 
   // Listen for sent message
   //socket.on("send-message", async ({ id, message, timestamp, sender }) => {
-  socket.on("send-message", (msg) => {
-    io.emit("receive-message", msg);
+  socket.on("send-message", ({ message, timestamp, sender }) => {
+    io.emit("receive-message", { message, timestamp, sender, numOfUsers });
 
     //// Find existing channel chat history
     //const chatHistory = await ChannelData.findById(id);
