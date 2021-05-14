@@ -4,8 +4,8 @@ const passport = require("passport");
 const handleAuth = require("../controllers/handleAuth");
 const ensureAuthenticated = require("../utilities/ensureAuthenticated");
 
-const originUrl = "http://localhost:3000";
-//const originUrl = "https://chakra-chat.netlify.app";
+//const originUrl = "http://localhost:3000";
+const originUrl = "https://chakra-chat.netlify.app";
 
 router.get("/", ensureAuthenticated, handleAuth.sessionExists);
 
