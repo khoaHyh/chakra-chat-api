@@ -7,7 +7,7 @@ const User = require("./models/user");
 
 module.exports = (passport) => {
   // Convert object contents into a key
-  passport.serializeUser((user, done) => done(null, user));
+  passport.serializeUser((user, done) => done(null, user._id));
   // Convert key into original object and retrieve object contents
   passport.deserializeUser(async (id, done) => {
     try {

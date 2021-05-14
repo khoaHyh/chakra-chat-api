@@ -31,8 +31,7 @@ router.get(
     session: true,
   }),
   (req, res) => {
-    console.log("github session:", req.session);
-    console.log("user info:", req.user);
+    req.session.user_id = req.user.id;
     res.redirect(`${originUrl}/chat`);
   }
 );
