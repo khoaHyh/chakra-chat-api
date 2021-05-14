@@ -12,7 +12,7 @@ module.exports = (email, hash) => {
   });
 
   //const link = `http://localhost:3000/confirmation/${hash}`;
-  const link = `https://chakra-chat-api.netlify.app/confirmation/${hash}`;
+  const link = `https://chakra-chat.netlify.app/confirmation/${hash}`;
 
   let mailOptions = {
     from: `"discord-clone-khoahyh 👻" <${process.env.GMAIL_EMAIL}>`, // sender address
