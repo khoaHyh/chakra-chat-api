@@ -5,7 +5,7 @@ const httpOnlyCookie = (origin) => {
 
 // Modify secure property of express-session based on origin
 const secureCookie = (origin) => {
-  return origin === "https://discord-clone-khoahyh.netlify.app";
+  return origin === "https://chakra-chat.netlify.app";
 };
 
 module.exports = { httpOnlyCookie, secureCookie };

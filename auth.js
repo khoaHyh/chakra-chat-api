@@ -8,11 +8,14 @@ module.exports = (passport) => {
   // Convert object contents into a key
   passport.serializeUser((user, done) => done(null, user._id));
   // Convert key into original object and retrieve object contents
-  passport.deserializeUser((id, done) => {
-    User.findById(id, (err, doc) => {
-      if (err) return done(err);
-      done(null, doc);
-    });
+  passport.deserializeUser(async (id, done) => {
+    try {
+      let user = await User.findById(id);
+      if (!user) return done(null, false, { message: "user not found" });
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
   });
 
   // Define process to use when we try to authenticate someone locally
@@ -58,7 +61,7 @@ module.exports = (passport) => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          let user = await User.findOne({ githubId: profile.id });
+          let user = await User.findById(profile.id);
 
           if (user) {
             return done(null, user, { message: "Github OAuth successful" });
@@ -66,7 +69,7 @@ module.exports = (passport) => {
 
           console.log("profile:", profile);
           user = await User.create({
-            githubId: profile.id,
+            id: profile.id,
             username: profile.username,
             provider: "github",
             active: true,
