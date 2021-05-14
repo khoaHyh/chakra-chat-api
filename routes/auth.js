@@ -30,6 +30,7 @@ router.get(
   (req, res) => {
     req.session.user_id = req.user.id;
     console.log("user session id:", req.session.user_id);
+    console.log("req.user:", req.user);
     res.redirect(`${originUrl}/chat`);
   }
 );
