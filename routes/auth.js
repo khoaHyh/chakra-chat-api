@@ -28,6 +28,7 @@ router.get(
     session: true,
   }),
   (req, res) => {
+    console.log("r/auths.js req.isAuthenticated:", req.isAuthenticated());
     // https://github.com/jaredhanson/passport/issues/482
     req.session.save(() => {
       res.redirect(`${originUrl}/chat`);
