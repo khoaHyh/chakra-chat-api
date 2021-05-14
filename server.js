@@ -25,7 +25,7 @@ const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 //const ChannelData = require("./models/channelData");
-const User = require("./models/user");
+//const User = require("./models/user");
 const onAuthorize = require("./utilities/onAuthorize");
 const {
   httpOnlyCookie,
@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
   const user = socket.request.user.username;
 
   // Welcome new connection
-  socket.emit("welcome-message", `Welcome ${user}!`);
+  socket.emit("welcome-message", `${user} has joined the chat!`);
 
   // Emit when a user disconnects
   socket.on("disconnect", () => {
