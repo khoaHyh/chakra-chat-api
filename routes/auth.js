@@ -28,10 +28,10 @@ router.get(
     session: true,
   }),
   (req, res) => {
-    req.session.user_id = req.user.id;
-    console.log("user session id:", req.session.user_id);
-    console.log("req.user:", req.user);
-    res.redirect(`${originUrl}/chat`);
+    // https://github.com/jaredhanson/passport/issues/482
+    req.session.save(() => {
+      res.redirect(`${originUrl}/chat`);
+    });
   }
 );
 
