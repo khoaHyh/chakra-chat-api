@@ -24,7 +24,8 @@ const io = require("socket.io")(http, {
 const connectDB = require("./utilities/db");
 const auth = require("./auth");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
-const ChannelData = require("./models/channelData");
+//const ChannelData = require("./models/channelData");
+const User = require("./models/user");
 const onAuthorize = require("./utilities/onAuthorize");
 const {
   httpOnlyCookie,
@@ -98,7 +99,7 @@ io.on("connection", (socket) => {
   const user = socket.request.user.username;
 
   // Welcome new connection
-  socket.emit("message", `Welcome ${user}!`);
+  socket.emit("welcome-message", `Welcome ${user}!`);
 
   // Emit when a user disconnects
   socket.on("disconnect", () => {
@@ -106,42 +107,38 @@ io.on("connection", (socket) => {
   });
 
   // Listen for sent message
-  socket.on("send-message", ({ id, message, timestamp, sender }) => {
-    const update = {
-      new: true,
-      upsert: true,
-      safe: true,
-    };
+  //socket.on("send-message", async ({ id, message, timestamp, sender }) => {
+  socket.on("send-message", (msg) => {
+    io.emit("receive-message", msg);
 
-    ChannelData.findByIdAndUpdate(
-      id,
-      {
-        $push: { conversation: { message, timestamp, sender } },
-      },
-      update,
-      (err, data) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json(err);
-        } else {
-          socket.emit("receive-message", data.conversation);
-        }
-      }
-    );
+    //// Find existing channel chat history
+    //const chatHistory = await ChannelData.findById(id);
+    //if (!chatHistory) {
+    //  return res.status(404).json({ message: "No existing channel found" });
+    //}
+    //const chatObject = {
+    //  id,
+    //  message,
+    //  timestamp,
+    //  sender,
+    //};
+    //// Push new message into array of the chat document
+    //chatHistory.conversation.push(chatObject);
+    //await chatHistory.save();
+    //socket.emit("receive-message", chatObject);
   });
 });
 
-app.get("/get/conversation", (req, res) => {
-  const id = req.query.id;
-
-  ChannelData.findById(id, (err, data) => {
-    if (err) {
-      res.status(500).json(err);
-    } else {
-      res.status(200).json(data);
-    }
-  });
-});
+//app.get("/remove/allAccounts", (req, res) => {
+//  User.deleteMany({}, (err, data) => {
+//    if (err) {
+//      console.log(err);
+//      res.status(500).json({ message: "Error removing all users." });
+//    } else {
+//      res.status(200).json({ message: "Success! Removed all users." });
+//    }
+//  });
+//});
 
 // Routes
 app.use("/auth", authRoutes);

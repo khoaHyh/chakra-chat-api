@@ -15,7 +15,7 @@ const register = async (req, res, next) => {
     return res.status(400).json({ message: "Missing credentials" });
   }
 
-  if (filter.isProfane(uname)) {
+  if (filter.isProfane(username)) {
     return res
       .status(422)
       .json({ message: "Username must not contain profanity." });

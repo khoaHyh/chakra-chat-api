@@ -24,7 +24,6 @@ module.exports = (passport) => {
         console.log(`User ${username} attempted to log in`);
 
         if (!user) {
-          console.log(`User ${username} doesn't exist.`);
           return done(null, false, {
             message: "Invalid username or password.",
           });
@@ -33,7 +32,6 @@ module.exports = (passport) => {
         const validated = await bcrypt.compare(password, user.password);
 
         if (!validated) {
-          console.log("Invalid password");
           return done(null, false, {
             message: "Invalid username or password.",
           });

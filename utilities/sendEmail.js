@@ -11,8 +11,8 @@ module.exports = (email, hash) => {
     },
   });
 
-  //const link = `http://localhost:3000/confirmation/${hash}`;
-  const link = `https://discord-clone-khoahyh.netlify.app/confirmation/${hash}`;
+  const link = `http://localhost:3000/confirmation/${hash}`;
+  //const link = `https://discord-clone-khoahyh.netlify.app/confirmation/${hash}`;
 
   let mailOptions = {
     from: `"discord-clone-khoahyh 👻" <${process.env.GMAIL_EMAIL}>`, // sender address
