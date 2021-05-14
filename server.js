@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
   const user = socket.request.user.username;
 
   // Welcome new connection
-  socket.emit("welcome-message", `${user} has joined the chat!`);
+  io.emit("welcome-message", `${user} has joined the chat!`);
 
   // Emit when a user disconnects
   socket.on("disconnect", () => {
