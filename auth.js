@@ -57,20 +57,25 @@ module.exports = (passport) => {
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
       async (accessToken, refreshToken, profile, done) => {
-        const user = await User.findOne({ githubId: profile.id });
+        try {
+          const user = await User.findOne({ githubId: profile.id });
 
-        if (user) {
-          return done(null, false, { message: "Failed Github OAuth." });
+          if (user) {
+            return done(null, false, { message: "Failed Github OAuth." });
+          }
+
+          user = await User.create({
+            githubId: profile.id,
+            username: profile.username,
+            provider: "github",
+            active: true,
+          });
+
+          return done(null, user, { message: "Github OAuth successful." });
+        } catch (error) {
+          console.log(error);
+          return done(error);
         }
-
-        user = await User.create({
-          githubId: profile.id,
-          username: profile.username,
-          provider: "github",
-          active: true,
-        });
-
-        return done(null, user, { message: "Github OAuth successful." });
       }
     )
   );
