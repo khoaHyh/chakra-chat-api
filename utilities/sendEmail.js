@@ -15,9 +15,9 @@ module.exports = (email, hash) => {
   const link = `https://chakra-chat.netlify.app/confirmation/${hash}`;
 
   let mailOptions = {
-    from: `"discord-clone-khoahyh 👻" <${process.env.GMAIL_EMAIL}>`, // sender address
+    from: `"chakra-chat👻" <${process.env.GMAIL_EMAIL}>`, // sender address
     to: email, // list of receivers
-    subject: "Confirm email for discord-clone-khoahyh ✔", // Subject line
+    subject: "Confirm email for chakra-chat ✔", // Subject line
     html: `Hello,<br> Please click on the link to verify your email.<br><a href="${link}">Click here to verify</a>`, // html body
   };
 
