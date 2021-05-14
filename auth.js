@@ -7,7 +7,7 @@ const User = require("./models/user");
 
 module.exports = (passport) => {
   // Convert object contents into a key
-  passport.serializeUser((user, done) => done(null, user._id));
+  passport.serializeUser((user, done) => done(null, user));
   // Convert key into original object and retrieve object contents
   passport.deserializeUser(async (id, done) => {
     try {
@@ -62,15 +62,14 @@ module.exports = (passport) => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          const objectId = mongoose.Types.ObjectId(profile.id);
-          let user = await User.findById(objectId);
+          let user = await User.findOne({ githubId: profile.id });
 
           if (user) {
             return done(null, user, { message: "Github OAuth successful" });
           }
 
           user = await User.create({
-            id: objectId,
+            githubId: profile.id,
             username: profile.username,
             provider: "github",
             active: true,
