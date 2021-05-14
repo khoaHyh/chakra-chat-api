@@ -2,6 +2,7 @@ require("dotenv").config();
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 const GitHubStrategy = require("passport-github2").Strategy;
+const mongoose = require("mongoose");
 const User = require("./models/user");
 
 module.exports = (passport) => {
@@ -61,15 +62,15 @@ module.exports = (passport) => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          let user = await User.findById(profile.id);
+          const objectId = mongoose.Types.ObjectId(profile.id);
+          let user = await User.findById(objectId);
 
           if (user) {
             return done(null, user, { message: "Github OAuth successful" });
           }
 
-          console.log("profile:", profile);
           user = await User.create({
-            id: profile.id,
+            id: objectId,
             username: profile.username,
             provider: "github",
             active: true,
