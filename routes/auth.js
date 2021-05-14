@@ -19,7 +19,10 @@ router.get("/logout", handleAuth.logout);
 
 router.get("/confirmation/:hash", handleAuth.confirmation);
 
-router.get("/github", passport.authenticate("github"));
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
 
 router.get(
   "/github/callback",

@@ -64,6 +64,7 @@ module.exports = (passport) => {
             return done(null, user, { message: "Github OAuth successful" });
           }
 
+          console.log("profile:", profile);
           user = await User.create({
             githubId: profile.id,
             username: profile.username,
