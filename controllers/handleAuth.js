@@ -113,7 +113,7 @@ const confirmation = async (req, res, next) => {
   }
 };
 
-// Respond with code 200 and specific response body if user session exists
+// Respond with code 200 and specific response body
 const sessionExists = (req, res) => {
   res.status(200).json({
     message: "isAuthenticated.",

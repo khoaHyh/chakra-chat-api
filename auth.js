@@ -9,22 +9,22 @@ module.exports = (passport) => {
   passport.serializeUser((user, done) => done(null, user._id));
 
   // Convert key into original object and retrieve object contents
-  //passport.deserializeUser((id, done) => {
-  //  User.findById(id, (err, user) => {
-  //    if (err) return done(error);
-  //    done(err, user);
-  //  });
-  //});
-
-  passport.deserializeUser(async (id, done) => {
-    try {
-      let user = await User.findById(id);
-      if (!user) return done(null, false, { message: "user not found" });
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
+  passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+      if (err) return done(error);
+      done(err, user);
+    });
   });
+
+  //passport.deserializeUser(async (id, done) => {
+  //  try {
+  //    let user = await User.findById(id);
+  //    if (!user) return done(null, false, { message: "user not found" });
+  //    done(null, user);
+  //  } catch (error) {
+  //    done(error);
+  //  }
+  //});
 
   // Define process to use when we try to authenticate someone locally
   passport.use(
@@ -67,25 +67,41 @@ module.exports = (passport) => {
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          let user = await User.findOne({ githubId: profile.id });
+      User.findOne({ githubId: profile.id }, (err, user) => {
+        if (err) return done(err, null);
+        if (user) return done(err, user);
 
-          if (user) return done(null, user);
+        user = new User({
+          githubId: profile.id,
+          username: profile.username,
+          provider: "github",
+          active: true,
+        });
 
-          user = await User.create({
-            githubId: profile.id,
-            username: profile.username,
-            provider: "github",
-            active: true,
-          });
+        user.save((err, doc) => {
+          if (err) return done(err);
+          done(null, doc);
+        });
 
-          return done(null, user);
-        } catch (error) {
-          console.log(error);
-          return done(error);
-        }
-      }
+        //async (accessToken, refreshToken, profile, done) => {
+        //  try {
+        //    let user = await User.findOne({ githubId: profile.id });
+
+        //    if (user) return done(null, user);
+
+        //    user = await User.create({
+        //      githubId: profile.id,
+        //      username: profile.username,
+        //      provider: "github",
+        //      active: true,
+        //    });
+
+        //    return done(null, user);
+        //  } catch (error) {
+        //    console.log(error);
+        //    return done(error);
+        //  }
+      })
     )
   );
 };
