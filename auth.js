@@ -67,12 +67,34 @@ module.exports = (passport) => {
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      (accessToken, refreshToken, profile, done) => {
-        User.findOne({ githubId: profile.id }, (err, user) => {
-          if (err) return done(err, null);
-          if (user) return done(err, user);
+      //(accessToken, refreshToken, profile, done) => {
+      //  User.findOne({ githubId: profile.id }, (err, user) => {
+      //    if (err) return done(err, null);
+      //    if (user) return done(null, user);
 
-          user = new User({
+      //    user = new User({
+      //      githubId: profile.id,
+      //      email: Array.isArray(profile.emails)
+      //        ? profile.emails[0].value
+      //        : "No public email",
+      //      username: profile.username,
+      //      provider: "github",
+      //      active: true,
+      //    });
+
+      //    user.save((err, doc) => {
+      //      if (err) return done(err);
+      //      done(null, doc);
+      //    });
+      //  });
+
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          let user = await User.findOne({ githubId: profile.id });
+
+          if (user) return done(null, user);
+
+          user = await User.create({
             githubId: profile.id,
             email: Array.isArray(profile.emails)
               ? profile.emails[0].value
@@ -82,33 +104,11 @@ module.exports = (passport) => {
             active: true,
           });
 
-          user.save((err, doc) => {
-            if (err) return done(err);
-            done(null, doc);
-          });
-
-          //async (accessToken, refreshToken, profile, done) => {
-          //  try {
-          //    let user = await User.findOne({ githubId: profile.id });
-
-          //    if (user) return done(null, user);
-
-          //    user = await User.create({
-          //      githubId: profile.id,
-          //      email: Array.isArray(profile.emails)
-          //        ? profile.emails[0].value
-          //        : "No public email",
-          //      username: profile.username,
-          //      provider: "github",
-          //      active: true,
-          //    });
-
-          //    return done(null, user);
-          //  } catch (error) {
-          //    console.log(error);
-          //    return done(error);
-          //  }
-        });
+          return done(null, user);
+        } catch (error) {
+          console.log(error);
+          return done(error);
+        }
       }
     )
   );

@@ -28,22 +28,14 @@ router.get(
   "/github/callback",
   passport.authenticate("github", {
     failureRedirect: `${originUrl}/login`,
+    successRedirect: `${originUrl}/chat}`,
     session: true,
-  }),
-  (req, res) => {
-    //console.log("ROUTE req.session:", req.session);
-    //console.log("ROUTE req.user:", req.user);
-    //res.redirect(`${originUrl}/chat`);
-
-    req.logIn(req.user, (err) => {
-      if (err) return res.redirect(`${originUrl}/login`);
-
-      req.session.user = req.user;
-
-      // Redirect if it succeeds
-      return res.redirect(`${originUrl}/chat`);
-    });
-  }
+  })
+  //(req, res) => {
+  //  console.log("ROUTE req.session:", req.session);
+  //  console.log("ROUTE req.user:", req.user);
+  //  res.redirect(`${originUrl}/chat`);
+  //}
 );
 
 module.exports = router;
