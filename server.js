@@ -61,8 +61,8 @@ app.use(
     //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
     cookie: {
       sameSite: "none",
-      secure: secureCookie(originUrl),
-      httpOnly: httpOnlyCookie(originUrl),
+      //secure: secureCookie(originUrl),
+      //httpOnly: httpOnlyCookie(originUrl),
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     key: "express.sid",

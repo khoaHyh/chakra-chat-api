@@ -18,11 +18,8 @@ module.exports = (passport) => {
 
   passport.deserializeUser(async (id, done) => {
     try {
-      console.log("id:", id);
       let user = await User.findById(id);
-      console.log("user:", user);
       if (!user) return done(null, false, { message: "user not found" });
-      console.log("deserializeUser:", user);
       done(null, user);
     } catch (error) {
       done(error);
@@ -71,25 +68,42 @@ module.exports = (passport) => {
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
       async (accessToken, refreshToken, profile, done) => {
-        try {
-          let user = await User.findOne({ githubId: profile.id });
+        //try {
+        //  let user = await User.findOne({ githubId: profile.id });
 
-          if (user) {
-            return done(null, user, { message: "Github OAuth successful" });
-          }
+        //  if (user) {
+        //    return done(null, user);
+        //  }
 
-          user = await User.create({
+        //  user = await User.create({
+        //    githubId: profile.id,
+        //    username: profile.username,
+        //    provider: "github",
+        //    active: true,
+        //  });
+
+        //  return done(null, user);
+        //} catch (error) {
+        //  console.log(error);
+        //  return done(error);
+        //}
+
+        User.findOne({ githubId: profile.id }, (err, user) => {
+          if (err) return done(err);
+          if (user) return done(null, user);
+
+          user = new User({
             githubId: profile.id,
             username: profile.username,
             provider: "github",
             active: true,
           });
 
-          return done(null, user, { message: "Github OAuth successful." });
-        } catch (error) {
-          console.log(error);
-          return done(error);
-        }
+          user.save((err, doc) => {
+            if (err) return done(err);
+            return done(null, doc);
+          });
+        });
       }
     )
   );
