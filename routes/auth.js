@@ -31,9 +31,18 @@ router.get(
     session: true,
   }),
   (req, res) => {
-    console.log("ROUTE req.session:", req.session);
-    console.log("ROUTE req.user:", req.user);
-    res.redirect(`${originUrl}/chat`);
+    //console.log("ROUTE req.session:", req.session);
+    //console.log("ROUTE req.user:", req.user);
+    //res.redirect(`${originUrl}/chat`);
+
+    req.logIn(user, (err) => {
+      if (err) return res.redirect(`${originUrl}/login`);
+
+      req.session.user = req.user;
+
+      // Redirect if it succeeds
+      return res.redirect(`${originUrl}/chat`);
+    });
   }
 );
 
