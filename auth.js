@@ -9,24 +9,25 @@ module.exports = (passport) => {
   passport.serializeUser((user, done) => done(null, user._id));
 
   // Convert key into original object and retrieve object contents
-  passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      if (err) return done(error);
-      done(err, user);
-    });
-  });
-
-  //passport.deserializeUser(async (id, done) => {
-  //  try {
-  //    console.log("id:", id);
-  //    let user = await User.findById(id);
-  //    console.log("user:", user);
-  //    if (!user) return done(null, false, { message: "user not found" });
-  //    done(null, user);
-  //  } catch (error) {
-  //    done(error);
-  //  }
+  //passport.deserializeUser((id, done) => {
+  //  User.findById(id, (err, user) => {
+  //    if (err) return done(error);
+  //    done(err, user);
+  //  });
   //});
+
+  passport.deserializeUser(async (id, done) => {
+    try {
+      console.log("id:", id);
+      let user = await User.findById(id);
+      console.log("user:", user);
+      if (!user) return done(null, false, { message: "user not found" });
+      console.log("deserializeUser:", user);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
 
   // Define process to use when we try to authenticate someone locally
   passport.use(
