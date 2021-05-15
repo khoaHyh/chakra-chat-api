@@ -67,7 +67,8 @@ module.exports = (passport) => {
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      async (accessToken, refreshToken, profile, done) => {
+      //async (accessToken, refreshToken, profile, done) => {
+      (accessToken, refreshToken, profile, done) => {
         //try {
         //  let user = await User.findOne({ githubId: profile.id });
 
