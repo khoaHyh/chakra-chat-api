@@ -99,23 +99,23 @@ let numOfUsers = 0;
 io.on("connection", (socket) => {
   numOfUsers++;
   const user = socket.request.user.username;
+  io.emit("connection", { numOfUsers });
 
   // Welcome new connection
   io.emit("receive-message", {
     sender: "Chakra-Chat Server",
     timestamp: Date.now(),
     message: `${user} has joined the chat!`,
-    numOfUsers,
   });
 
   // Emit when a user disconnects
   socket.on("disconnect", () => {
     numOfUsers--;
+    io.emit("disconnect", { numOfUsers });
     io.emit("receive-message", {
       sender: "Chakra-Chat Server",
       timestamp: Date.now(),
       message: `${user} has left the chat.`,
-      numOfUsers,
     });
   });
 

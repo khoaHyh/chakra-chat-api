@@ -74,6 +74,9 @@ module.exports = (passport) => {
 
           user = new User({
             githubId: profile.id,
+            email: Array.isArray(profile.emails)
+              ? profile.emails[0].value
+              : "No public email",
             username: profile.username,
             provider: "github",
             active: true,
@@ -92,6 +95,9 @@ module.exports = (passport) => {
 
           //    user = await User.create({
           //      githubId: profile.id,
+          //      email: Array.isArray(profile.emails)
+          //        ? profile.emails[0].value
+          //        : "No public email",
           //      username: profile.username,
           //      provider: "github",
           //      active: true,
