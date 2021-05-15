@@ -31,6 +31,8 @@ router.get(
     session: true,
   }),
   (req, res) => {
+    console.log("ROUTE req.session:", req.session);
+    console.log("ROUTE req.user:", req.user);
     res.redirect(`${originUrl}/chat`);
   }
 );
