@@ -28,6 +28,10 @@ router.get(
     session: true,
   }),
   (req, res) => {
+    req.logIn(req.user, (err) => {
+      if (err) return next(err);
+    });
+
     res.redirect(`${originUrl}/chat`);
   }
 );

@@ -67,44 +67,24 @@ module.exports = (passport) => {
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      //async (accessToken, refreshToken, profile, done) => {
-      (accessToken, refreshToken, profile, done) => {
-        //try {
-        //  let user = await User.findOne({ githubId: profile.id });
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          let user = await User.findOne({ githubId: profile.id });
 
-        //  if (user) {
-        //    return done(null, user);
-        //  }
-
-        //  user = await User.create({
-        //    githubId: profile.id,
-        //    username: profile.username,
-        //    provider: "github",
-        //    active: true,
-        //  });
-
-        //  return done(null, user);
-        //} catch (error) {
-        //  console.log(error);
-        //  return done(error);
-        //}
-
-        User.findOne({ githubId: profile.id }, (err, user) => {
-          if (err) return done(err);
           if (user) return done(null, user);
 
-          user = new User({
+          user = await User.create({
             githubId: profile.id,
             username: profile.username,
             provider: "github",
             active: true,
           });
 
-          user.save((err, doc) => {
-            if (err) return done(err);
-            return done(null, doc);
-          });
-        });
+          return done(null, user);
+        } catch (error) {
+          console.log(error);
+          return done(error);
+        }
       }
     )
   );
