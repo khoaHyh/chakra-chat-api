@@ -67,41 +67,43 @@ module.exports = (passport) => {
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      User.findOne({ githubId: profile.id }, (err, user) => {
-        if (err) return done(err, null);
-        if (user) return done(err, user);
+      (accessToken, refreshToken, profile, done) => {
+        User.findOne({ githubId: profile.id }, (err, user) => {
+          if (err) return done(err, null);
+          if (user) return done(err, user);
 
-        user = new User({
-          githubId: profile.id,
-          username: profile.username,
-          provider: "github",
-          active: true,
+          user = new User({
+            githubId: profile.id,
+            username: profile.username,
+            provider: "github",
+            active: true,
+          });
+
+          user.save((err, doc) => {
+            if (err) return done(err);
+            done(null, doc);
+          });
+
+          //async (accessToken, refreshToken, profile, done) => {
+          //  try {
+          //    let user = await User.findOne({ githubId: profile.id });
+
+          //    if (user) return done(null, user);
+
+          //    user = await User.create({
+          //      githubId: profile.id,
+          //      username: profile.username,
+          //      provider: "github",
+          //      active: true,
+          //    });
+
+          //    return done(null, user);
+          //  } catch (error) {
+          //    console.log(error);
+          //    return done(error);
+          //  }
         });
-
-        user.save((err, doc) => {
-          if (err) return done(err);
-          done(null, doc);
-        });
-
-        //async (accessToken, refreshToken, profile, done) => {
-        //  try {
-        //    let user = await User.findOne({ githubId: profile.id });
-
-        //    if (user) return done(null, user);
-
-        //    user = await User.create({
-        //      githubId: profile.id,
-        //      username: profile.username,
-        //      provider: "github",
-        //      active: true,
-        //    });
-
-        //    return done(null, user);
-        //  } catch (error) {
-        //    console.log(error);
-        //    return done(error);
-        //  }
-      })
+      }
     )
   );
 };
