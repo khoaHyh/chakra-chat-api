@@ -99,7 +99,7 @@ let numOfUsers = 0;
 io.on("connection", (socket) => {
   numOfUsers++;
   const user = socket.request.user.username;
-  io.emit("connection", { numOfUsers });
+  io.emit("user-connect", numOfUsers);
 
   // Welcome new connection
   io.emit("receive-message", {
@@ -111,12 +111,14 @@ io.on("connection", (socket) => {
   // Emit when a user disconnects
   socket.on("disconnect", () => {
     numOfUsers--;
-    io.emit("disconnect", { numOfUsers });
-    io.emit("receive-message", {
-      sender: "Chakra-Chat Server",
-      timestamp: Date.now(),
-      message: `${user} has left the chat.`,
-    });
+    io.emit("user-disconnect", [
+      {
+        sender: "Chakra-Chat Server",
+        timestamp: Date.now(),
+        message: `${user} has left the chat.`,
+      },
+      numOfUsers,
+    ]);
   });
 
   // Listen for sent message
