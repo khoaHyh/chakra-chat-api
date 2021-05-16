@@ -161,7 +161,7 @@ app.use("/auth", authRoutes);
 const PORT = process.env.PORT || 8080;
 
 if (process.env.NODE_ENV === "production") {
-  const httpServer = http.createServer();
+  const httpServer = http.createServer(app);
   httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 } else {
   http.listen(PORT, () => {
