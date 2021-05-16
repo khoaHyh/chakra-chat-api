@@ -3,7 +3,7 @@
   "author": "http://github.com/khoaHyh",
   "main": "server.js",
   "scripts": {
-    "start": "node ./server.js",
+    "start": "NODE_ENV=production node ./server.js",
     "dev": "nodemon ./server.js"
   },
   "dependencies": {

@@ -159,6 +159,12 @@ io.on("connection", (socket) => {
 app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 8080;
-http.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
+
+if (process.env.NODE_ENV === "production") {
+  const httpServer = http.createServer();
+  httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+} else {
+  http.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+  });
+}

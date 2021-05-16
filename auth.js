@@ -8,24 +8,17 @@ module.exports = (passport) => {
   // Convert object contents into a key
   passport.serializeUser((user, done) => done(null, user._id));
 
-  // Convert key into original object and retrieve object contents
-  passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      if (err) return done(error);
+  // Convert key into object
+  passport.deserializeUser(async (id, done) => {
+    try {
+      let user = await User.findById(id);
+      if (!user) return done(null, false, { message: "user not found" });
+      console.log("deserializeUser:", user);
       done(null, user);
-    });
+    } catch (error) {
+      done(error);
+    }
   });
-
-  //passport.deserializeUser(async (id, done) => {
-  //  try {
-  //    let user = await User.findById(id);
-  //    if (!user) return done(null, false, { message: "user not found" });
-  //    console.log("deserializeUser:", user);
-  //    done(null, user);
-  //  } catch (error) {
-  //    done(error);
-  //  }
-  //});
 
   // Define process to use when we try to authenticate someone locally
   passport.use(
@@ -68,27 +61,6 @@ module.exports = (passport) => {
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
       },
-      //(accessToken, refreshToken, profile, done) => {
-      //  User.findOne({ githubId: profile.id }, (err, user) => {
-      //    if (err) return done(err, null);
-      //    if (user) return done(null, user);
-
-      //    user = new User({
-      //      githubId: profile.id,
-      //      email: Array.isArray(profile.emails)
-      //        ? profile.emails[0].value
-      //        : "No public email",
-      //      username: profile.username,
-      //      provider: "github",
-      //      active: true,
-      //    });
-
-      //    user.save((err, doc) => {
-      //      if (err) return done(err);
-      //      done(null, doc);
-      //    });
-      //  });
-
       async (accessToken, refreshToken, profile, done) => {
         try {
           let user = await User.findOne({ githubId: profile.id });
