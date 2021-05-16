@@ -12,7 +12,7 @@ module.exports = (passport) => {
   passport.deserializeUser((id, done) => {
     User.findById(id, (err, user) => {
       if (err) return done(error);
-      done(err, user);
+      done(null, user);
     });
   });
 
@@ -20,6 +20,7 @@ module.exports = (passport) => {
   //  try {
   //    let user = await User.findById(id);
   //    if (!user) return done(null, false, { message: "user not found" });
+  //    console.log("deserializeUser:", user);
   //    done(null, user);
   //  } catch (error) {
   //    done(error);
