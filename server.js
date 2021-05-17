@@ -57,11 +57,9 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    // Equals 1 day (1 day * 1000 ms/1 sec * 60 sec/1 min * 60 min/1 hr * 24 hr/1 day)
-    // set httponly: false for https
-    //cookie: { maxAge: 1000 * 60 * 60 * 24 }, // set secure: true for https(prod)
+    proxy: true,
     cookie: {
-      sameSite: "none",
+      //sameSite: "none",
       secure: secureCookie(originUrl),
       httpOnly: httpOnlyCookie(originUrl),
       maxAge: 1000 * 60 * 60 * 24 * 7,
