@@ -6,19 +6,24 @@ const User = require("./models/user");
 
 module.exports = (passport) => {
   // Convert object contents into a key
-  passport.serializeUser((user, done) => done(null, user._id));
+  passport.serializeUser((user, done) => done(null, user.id));
 
   // Convert key into object
-  passport.deserializeUser(async (id, done) => {
-    try {
-      let user = await User.findById(id);
-      if (!user) return done(null, false, { message: "user not found" });
-      console.log("deserializeUser:", user);
+  passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+      if (err) return done(err);
       done(null, user);
-    } catch (error) {
-      done(error);
-    }
+    });
   });
+
+  //passport.deserializeUser(async (id, done) => {
+  //  try {
+  //    let user = await User.findById(id);
+  //    done(null, user);
+  //  } catch (error) {
+  //    done(error);
+  //  }
+  //});
 
   // Define process to use when we try to authenticate someone locally
   passport.use(
