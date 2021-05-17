@@ -9,21 +9,14 @@ module.exports = (passport) => {
   passport.serializeUser((user, done) => done(null, user.id));
 
   // Convert key into object
-  passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      if (err) return done(err);
+  passport.deserializeUser(async (id, done) => {
+    try {
+      let user = await User.findById(id);
       done(null, user);
-    });
+    } catch (error) {
+      done(error);
+    }
   });
-
-  //passport.deserializeUser(async (id, done) => {
-  //  try {
-  //    let user = await User.findById(id);
-  //    done(null, user);
-  //  } catch (error) {
-  //    done(error);
-  //  }
-  //});
 
   // Define process to use when we try to authenticate someone locally
   passport.use(
@@ -65,6 +58,7 @@ module.exports = (passport) => {
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL:
           "https://chakra-chat-api.herokuapp.com/auth/github/callback",
+        //"http://localhost:8080/auth/github/callback",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {

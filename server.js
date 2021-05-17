@@ -11,8 +11,7 @@ const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const passportSocketIo = require("passport.socketio");
 
-//const http = require("http").createServer(app);
-const http = require("http");
+const http = require("http").createServer(app);
 //const originUrl = "http://localhost:3000";
 const originUrl = "https://chakra-chat.netlify.app";
 const io = require("socket.io")(http, {
@@ -58,7 +57,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      //sameSite: "none",
+      sameSite: "none",
       secure: secureCookie(originUrl),
       httpOnly: httpOnlyCookie(originUrl),
       maxAge: 1000 * 60 * 60 * 24 * 7,
@@ -157,6 +156,4 @@ io.on("connection", (socket) => {
 app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 8080;
-
-const httpServer = http.createServer(app);
-httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
